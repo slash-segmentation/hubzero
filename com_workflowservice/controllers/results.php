@@ -307,9 +307,10 @@ public function deletejobTask() {
 
 		$results = curl_exec($ch);
 		curl_close($ch);
+		
+		$results_json = json_decode($results);
 
-		if ($results->parametersWithErrors) {
-			var_dump($results->parametersWithErrors);
+		if ($results_json->parametersWithErrors) {
 
 		        // Output the HTML
 			$task = json_decode($results);
@@ -329,7 +330,7 @@ public function deletejobTask() {
                         echo "</pre>\n";
                         /* End Debug */
 
-		} elseif( $results->id ) {
+		} elseif($results_json->id) {
 			// If a successful job submission, redirect to the Jobs listing	
 			if ($results) {
 
@@ -341,7 +342,7 @@ public function deletejobTask() {
 				exit;
 			}
 		} else {
-							
+
 			$task = json_decode($results);
 			$this->view->task = $task;
 
