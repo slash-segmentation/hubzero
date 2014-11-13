@@ -167,11 +167,12 @@ if (!$this->no_html) { ?>
 	<div class="descriptionbox">		
 		<div><?php echo nl2br($this->workflow->description); ?></div>
 
-<form method="post" action="/workflowservice/process" enctype="multipart/form-data" id="myform">
-<input type='hidden' name='workflowID' value = '<?php echo $this->workflow->id ?>' />
-<div id="form"></div>
-<input type="submit" name="submit_job" />
-</form>
+	<form method="post" action="/workflowservice/process" enctype="multipart/form-data" id="myform">
+	<input type='hidden' name='workflowID' value = '<?php echo $this->workflow->id ?>' />
+	<div id="form"></div>
+	<input type="submit" name="submit_job" />
+	</form>
+	<br />&nbsp;<br />
 </div>
 
 <script type="text/javascript">
