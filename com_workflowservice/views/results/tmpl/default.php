@@ -53,10 +53,24 @@ ul, li {list-style: none outside none; }
 	echo "<div id='lefto'><aside class='aside'><ul class='menu'>\n";
 	
 	if ($this->workflows) {
+		// put all workflow names, version into an assoc array for sorting
 		foreach ($this->workflows as $wf) {
-			echo '<li class="wfNames" id="' . $wf->id . '"><a href="workflowservice/launch/' . $wf->id . '-' . str_replace(" " , "", urlencode($wf->name)) . '">' . $wf->name . " (version " . $wf->version . ")</a></li>\n";
-			$all_descriptions .= '<div id="description_' . $wf->id . '" style="display: none">' . nl2br($wf->description) . '</div>' . "\n";
-		}
+			$workflows[$wf->name][$wf->version] = $wf->id;
+		}	
+
+		// sort each workflow by version number
+		foreach (array_keys($workflows) as $wf_name) {
+			// sort by array keys
+			ksort($workflows[$wf_name]);
+
+			// loop through workflow list and only show the workflow with the max version number
+			foreach ($this->workflows as $wf) {
+				if (($wf->name == $wf_name) && ($wf->version == max(array_keys($workflows[$wf_name])))) {
+					echo '<li class="wfNames" id="' . $wf->id . '"><a href="workflowservice/launch/' . $wf->id . '-' . str_replace(" " , "", urlencode($wf->name)) . '">' . $wf->name . " (version " . $wf->version . ")</a></li>\n";
+					$all_descriptions .= '<div id="description_' . $wf->id . '" style="display: none">' . nl2br($wf->description) . '</div>' . "\n";
+				}
+			}
+		}	
 	}
 	echo "</div></aside></div>\n";
 	echo "<div id='righto'></div>" . $all_descriptions ."\n";
