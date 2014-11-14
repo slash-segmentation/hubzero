@@ -31,17 +31,17 @@
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die( 'Restricted access' );
 
-if (!$this->no_html) { ?>
-<div id="content-header" class="full">
-	<h2><?php echo $this->title; ?></h2>
-</div><!-- / #content-header -->
-
-<?php } ?>
+?>
+	<header id="content-header">
+		<h2><?php echo $this->title; ?></h2>
+	</header><!-- / #content-header -->
+	
+	<section class="main section">
 
 <style>
-#lefto { float: left; }
-#righto { float: left; padding-left: 50px; height: 600px; }
-#blocked { padding-left: 40px; }
+#lefto { float: left; padding-left: 10px;}
+#righto { float: left; padding-left: 10px; height: 600px; }
+#blocked { padding-left: 0px; }
 .wfNames { padding-bottom: 10px; font-weight: bold;}
 ul, li {list-style: none outside none; }
 </style>
@@ -74,6 +74,7 @@ ul, li {list-style: none outside none; }
 	}
 	echo "</div></aside></div>\n";
 	echo "<div id='righto'></div>" . $all_descriptions ."\n";
+	echo "</style>\n";
 ?>
 
 <script type="text/javascript">
