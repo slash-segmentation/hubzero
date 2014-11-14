@@ -47,10 +47,11 @@ if (!$this->no_html) { ?>
 </div><!-- / #content-header -->
 
 <script type="text/javascript" >
-$(document).ready( function () {
-    $('#jobs').DataTable();
-    	
-} );
+	$(document).ready( function () {
+		$('#jobs').dataTable({
+		 "order": [[ 5, "desc" ]]
+		 });
+	});
 </script>
 
 <?php }
@@ -60,9 +61,12 @@ $(document).ready( function () {
 	echo "<tr><th>Job Name</th><th>ID</th><th>Workflow Name</th><th>Owner</th><th>Status</th><th>Created</th><th></th></tr>\n";
 	echo "</thead>\n";
 	foreach ($this->tasks as $task) {
-		if ($task->workflow->name) {
+		if (isset($task->workflow->name) ) {
 			$workflow_name = $task->workflow->name;
 			$workflow_version = $task->workflow->version;
+		} else {
+			$workflow_name = 'Unknown';
+			$workflow_version = 'unknown';
 		}	
 
 		echo "<tr>\n";
@@ -72,7 +76,7 @@ $(document).ready( function () {
 		echo "<td>$task->owner</td>";
 		echo "<td>$task->status</td>";
 		echo "<td>" . gmdate('Y-m-d H:i:s', ($task->createDate/1000)) . "</td>"; // output = 2012-08-15 00:00:00
-		echo '<td><a href="javascript:return(0);"><img src="/images/DeleteRed.png" width="12px" class="testthing" data-stateid="' . $task->id . '" id="remove' . $task->id . '"  border="0" /></a></td>' . "\n";
+		echo '<td><a href="javascript:return(0);"><img src="' . JURI::root(). 'components/com_workflowservice/assets/img/DeleteRed.png" width="12px" class="testthing" data-stateid="' . $task->id . '" id="remove' . $task->id . '"  border="0" /></a></td>' . "\n";
 		echo "</tr>\n";
 	}
 	echo "</table>\n";
