@@ -31,21 +31,21 @@
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die( 'Restricted access' );
 
-
-if (!$this->no_html) { ?>
-<div id="content-header" class="full">
-	<h2>Job Details</h2>
-</div><!-- / #content-header -->
-
-<?php } ?>
+?>
 
 <style>
 .form-element label {
     display: inline-block;
     width: 240px;
-    padding-left: 20px;
+    font-weight: bold;
 }
 </style>
+
+	<header id="content-header">
+		<h2>Job Details</h2>
+	</header><!-- / #content-header -->
+	
+	<section class="main section">
 
 <div class="form-element">
   <label for="name">Name</label><?php echo $this->task->name; ?><br />
@@ -62,7 +62,7 @@ if (!$this->no_html) { ?>
   <label for="hasJobBeenSubmittedToScheduler">Job submitted to scheduler?</label><?php echo $this->task->hasJobBeenSubmittedToScheduler ? 'yes' : 'no'; ?><br />
   <label for="downloadURL">Download URL</label><?php echo $this->task->downloadURL; ?><br />
   <label for="summaryOfErrors">Summary of Errors</label><?php echo $this->task->summaryOfErrors; ?><br />
-  <label for="jobParameters">Job Parameters</label><div style="padding-left: 260px;" >
+  <label for="jobParameters">Job Parameters</label><div style="padding-left: 240px;" >
 
 <?php  
 	foreach ($this->task->parameters as $param) {
@@ -71,7 +71,7 @@ if (!$this->no_html) { ?>
 	}
 ?>  
   </div>
-</div>
+</section>
 
 
 <?php
