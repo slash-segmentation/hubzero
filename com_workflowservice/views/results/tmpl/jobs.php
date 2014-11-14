@@ -31,20 +31,13 @@
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die( 'Restricted access' );
 
+?>
+	<header id="content-header">
+		<h2>My Jobs</h2>
+	</header><!-- / #content-header -->
+	
+	<section class="main section">
 
-
-if (!$this->no_html) { ?>
-<!-- DataTables CSS -->
-<link rel="stylesheet" type="text/css" href="/media/DataTables-1.10.1/css/jquery.dataTables.css">
-  
-<!-- jQuery -->
-<script type="text/javascript" charset="utf8" src="/media/DataTables-1.10.1/js/jquery.js"></script>
-  
-<!-- DataTables -->
-<script type="text/javascript" charset="utf8" src="/media/DataTables-1.10.1/js/jquery.dataTables.js"></script>
-<div id="content-header" class="full">
-	<h2>My Jobs</h2>
-</div><!-- / #content-header -->
 
 <script type="text/javascript" >
 	$(document).ready( function () {
@@ -59,7 +52,7 @@ if (!$this->no_html) { ?>
 </style>
 
 
-<?php }
+<?php
 
 	echo "<table border='1' cellpadding='1' cellspacing='0' id='jobs'>\n";
 	echo "<thead>\n";
@@ -90,6 +83,8 @@ if (!$this->no_html) { ?>
 		echo "</tr>\n";
 	}
 	echo "</table>\n";
+	echo "</section>\n";
+	
 ?>
 
 <script type="text/javascript">
