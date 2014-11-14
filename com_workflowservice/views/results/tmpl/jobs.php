@@ -54,6 +54,11 @@ if (!$this->no_html) { ?>
 	});
 </script>
 
+<style>
+	.job_error { padding: 3px; background: red; color: white; }
+</style>
+
+
 <?php }
 
 	echo "<table border='1' cellpadding='1' cellspacing='0' id='jobs'>\n";
@@ -74,7 +79,12 @@ if (!$this->no_html) { ?>
 		echo "<td>$task->id</td>";
 		echo "<td>$workflow_name (version " . $workflow_version. ")</td>";
 		echo "<td>$task->owner</td>";
-		echo "<td>$task->status</td>";
+		
+		if ($task->status == 'Error')
+			echo "<td><span class='job_error'>$task->status</span></td>";
+		else
+			echo "<td>$task->status</td>";
+			
 		echo "<td>" . gmdate('Y-m-d H:i:s', ($task->createDate/1000)) . "</td>"; // output = 2012-08-15 00:00:00
 		echo '<td><a href="javascript:return(0);"><img src="' . JURI::root(). 'components/com_workflowservice/assets/img/DeleteRed.png" width="12px" class="testthing" data-stateid="' . $task->id . '" id="remove' . $task->id . '"  border="0" /></a></td>' . "\n";
 		echo "</tr>\n";
