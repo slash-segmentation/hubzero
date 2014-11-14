@@ -162,7 +162,7 @@ defined('_JEXEC') or die( 'Restricted access' );
 		<form method="post" action="/workflowservice/process" enctype="multipart/form-data" id="myform">
 		<input type='hidden' name='workflowID' value = '<?php echo $this->workflow->id ?>' />
 		<div id="form"></div>
-		<input type="submit">
+		<input type="submit" name="submit_job">
 		</form>
 	</section>
 
