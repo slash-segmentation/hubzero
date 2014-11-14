@@ -122,7 +122,6 @@ defined('_JEXEC') or die( 'Restricted access' );
 				unset($option_array[$wfp->name]['label']);
 				break;
 		}
-
 	}
 	
 
@@ -146,34 +145,26 @@ defined('_JEXEC') or die( 'Restricted access' );
 	$o_schema->properties = $schema_array;
 	$o_options->fields = $option_array;
 
-if (!$this->no_html) { ?>
-<!-- DataTables CSS -->
-<link rel="stylesheet" type="text/css" href="/media/DataTables-1.10.1/css/jquery.dataTables.css">
-  
-<!-- DataTables -->
-<script type="text/javascript" charset="utf8" src="/media/DataTables-1.10.1/js/jquery.dataTables.js"></script>
-
+?>
 <style>
 	.selected, .highlight_row { background: pink; }
 	.alpaca-controlfield-label {font-size: 1.1em;}
 	.minHelperText {width: 900px; white-space: normal; }
-	.descriptionbox { padding-left: 50px; }
 </style>
 
-	<div id="content-header" class="full">
-		<h2><?php echo $this->workflow->name . " (version " . $this->workflow->version . ")"; ?></h2>
-	</div><!-- / #content-header -->
+	<header id="content-header">
+		<h2><?php echo $this->workflow->name; ?></h2>
+	</header><!-- / #content-header -->
 	
-	<div class="descriptionbox">		
+	<section class="main section">
 		<div><?php echo nl2br($this->workflow->description); ?></div>
 
-	<form method="post" action="/workflowservice/process" enctype="multipart/form-data" id="myform">
-	<input type='hidden' name='workflowID' value = '<?php echo $this->workflow->id ?>' />
-	<div id="form"></div>
-	<input type="submit" name="submit_job" />
-	</form>
-	<br />&nbsp;<br />
-</div>
+		<form method="post" action="/workflowservice/process" enctype="multipart/form-data" id="myform">
+		<input type='hidden' name='workflowID' value = '<?php echo $this->workflow->id ?>' />
+		<div id="form"></div>
+		<input type="submit">
+		</form>
+	</section>
 
 <script type="text/javascript">
 $(document).ready(function() {
@@ -349,7 +340,7 @@ $(document).ready(function() {
 	}	
 </script>	
 
-<?php } 
+<?php 
 
 function textToString ($input) {
 	if ($input == 'text') 
