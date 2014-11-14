@@ -488,13 +488,11 @@ if ($test) {
 	}
 
 	public function JobsTask() {
-		$tasks_json = file_get_contents(API_DEFAULT . "/rest/jobs?userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a&noparams=true&noworkflowparams=true");
+		$juser = JFactory::getUser();
+
+		$tasks_json = file_get_contents(API_DEFAULT . "/rest/jobs?owner=" . $juser->username . "&userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a&noparams=true&noworkflowparams=true");
 		$tasks = json_decode($tasks_json);
 		$this->view->tasks = $tasks;
-
-//		$tasks = file_get_contents("http://hubzero_fresh/biglist.json");
-//		$this->view->tasks = json_decode($tasks);
-		
 
         // Output the HTML  
         $this->view->display();		
