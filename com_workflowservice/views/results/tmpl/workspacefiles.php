@@ -33,19 +33,7 @@
 defined('_JEXEC') or die( 'Restricted access' );
 
 ?>
-<!-- DataTables CSS -->
-<link rel="stylesheet" type="text/css" href="/media/DataTables-1.10.1/css/jquery.dataTables.css">
-  
-<!-- jQuery -->
-<script type="text/javascript" charset="utf8" src="/media/DataTables-1.10.1/js/jquery.js"></script>
-  
-<!-- DataTables -->
-<script type="text/javascript" charset="utf8" src="/media/DataTables-1.10.1/js/jquery.dataTables.js"></script>
 
-<style>
-	.hidden {	display: none; }
-	#myFile { padding-left: 20px; padding-bottom: 30px; }
-</style>
 <script type="text/javascript">
 $(document).ready(function() {
     $('#example').dataTable( {
@@ -124,38 +112,33 @@ $(document).ready(function() {
 });
 </script>
 
-<div id="content-header" class="full">
-	<h1>Workspace Files</h1>
-</div><!-- / #content-header -->
+	<header id="content-header">
+		<h2>Workspace Files</h2>
+	</header><!-- / #content-header -->
+	
+	<section class="main section">
 
-<div style="float:right; padding: 3px; border: 1px dashed #666;" id="addFile">+ Add file(s) to workspace</div>
-	<div id="myFile" class="hidden">
-		<h2>Upload a File</h2>
-		<form id="testFile" method="POST" action="/workflowservice/upload" enctype="multipart/form-data" >
-			<input type="file" name="filename" id="filename" />
-			<input type="submit" id="submitFile" value="Upload" />
-		</form>
-	</div>
-<table id="example" class="display" cellspacing="0" width="100%">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>ID</th>
-                <th>Type</th>
-                <th>Size</th>
-                <th>Owner</th>
-                <th>Create Date</th>
-            </tr>
-        </thead>
+		<table id="example" class="display" cellspacing="0" width="100%">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>ID</th>
+					<th>Type</th>
+					<th>Size</th>
+					<th>Owner</th>
+					<th>Create Date</th>
+				</tr>
+			</thead>
  
-        <tfoot>
-            <tr>
-                <th>Name</th>
-                <th>ID</th>
-                <th>Type</th>
-                <th>Size</th>
-                <th>Owner</th>
-                <th>Create Date</th>
-            </tr>
-        </tfoot>
-    </table>
+			<tfoot>
+				<tr>
+					<th>Name</th>
+					<th>ID</th>
+					<th>Type</th>
+					<th>Size</th>
+					<th>Owner</th>
+					<th>Create Date</th>
+				</tr>
+			</tfoot>
+		</table>
+   </section> 
