@@ -153,8 +153,12 @@ public function previewTask() {
 
 	
 	public function launchTask() {
-	//Array ( ) [baseurl] => [option] => com_cws [task] => launch [controller] => results )
-/// Array ( [option] => com_cws [Itemid] => [task] => launch [period] => 4-wf4 )
+		$document = JFactory::getDocument();
+		$document->addStyleSheet( "/media/DataTables-1.10.1/css/jquery.dataTables.css" );
+		$document->addScript( "/media/DataTables-1.10.1/js/jquery.dataTables.js" );
+	
+	//  Array ( ) [baseurl] => [option] => com_cws [task] => launch [controller] => results )
+	//  Array ( [option] => com_cws [Itemid] => [task] => launch [period] => 4-wf4 )
 
 		$router =& JSite::getRouter();
 		$var = $router->getVars();
@@ -247,12 +251,12 @@ public function deletejobTask() {
 	public function processTask() {
 		// If user tries to load "process" page with accessing it thru a form submission, send them to workflow listing
 		if (!(isset($_POST['submit_job']))) {
-                        echo "<script type='text/javascript'>alert('Invalid form submission. Redirecting to Workflow list ...');";
-                        $redirectUrl = "/workflowservice";
-                        echo "window.location = '" . $redirectUrl . "'";
-                        echo "</script>\n";
-                        exit;
-                }
+			echo "<script type='text/javascript'>alert('Invalid form submission. Redirecting to Workflow list ...');";
+			$redirectUrl = "/workflowservice";
+			echo "window.location = '" . $redirectUrl . "'";
+			echo "</script>\n";
+			exit;
+		}
 		
 		$this->view->json->id = null;
 		$this->view->json->name = $_POST['_formCWS_jobname'];
@@ -488,6 +492,10 @@ if ($test) {
 	}
 
 	public function JobsTask() {
+		$document = JFactory::getDocument();
+		$document->addStyleSheet( "/media/DataTables-1.10.1/css/jquery.dataTables.css" );
+		$document->addScript( "/media/DataTables-1.10.1/js/jquery.dataTables.js" );
+	
 		$juser = JFactory::getUser();
 
 		$tasks_json = file_get_contents(API_DEFAULT . "/rest/jobs?owner=" . $juser->username . "&userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a&noparams=true&noworkflowparams=true");
