@@ -43,8 +43,17 @@ defined('_JEXEC') or die( 'Restricted access' );
 	if (isset($this->alpaca_file_id))
 		$js_file_ids = json_decode($this->alpaca_file_id);
 
+	if (isset($this->alpaca_adv_id))
+		$js_adv_ids = json_decode($this->alpaca_adv_id);
+
 	foreach ($this->workflow->parameters as $wfp) {
-	
+		// deal with advanced parameters ; this should populate adv_array and alpaca_adv_ids
+		if ($wfp->isAdvanced == true) {
+			$wf_split = explode("?", $wfp->value);
+			$tmp = str_replace("[form]", "", $wfp->name);
+
+			$adv_array[$js_adv_ids->$tmp] = $wf_split[1];
+		}
 	
 		$option_array[$wfp->name]['fieldClass'] = 'myClass';
 	
@@ -123,7 +132,6 @@ defined('_JEXEC') or die( 'Restricted access' );
 				break;
 		}
 	}
-	
 
 	// If CWS_jobname is given in the JSON, it was handled above. If not in JSON, handle here
 	$cws = '[form]CWS_jobname';
@@ -150,6 +158,15 @@ defined('_JEXEC') or die( 'Restricted access' );
 	.selected, .highlight_row { background: pink; }
 	.alpaca-controlfield-label {font-size: 1.1em;}
 	.minHelperText {width: 900px; white-space: normal; }
+	.ui-icon {width: 16px;height: 16px;display: block;background-image: url(/media/system/images/ui/ui-icons_454545_256x240.png);float: left;}
+	.ui-icon.large {background-size: 384px 360px;width: 24px;height: 24px;margin-top: 0;}
+
+	.ui-icon-triangle-1-e.large { background-position: -48px -24px; }
+	.ui-icon-triangle-1-s.large {     background-position: -96px -24px; }
+
+	#advanced { padding-bottom: 20px; }
+	.advanced_title {font-size: 1.2em; font-weight: bold; }
+	#adv1 { padding-left: 20px; display: none;}
 </style>
 
 	<header id="content-header">
@@ -162,6 +179,15 @@ defined('_JEXEC') or die( 'Restricted access' );
 		<form method="post" action="/workflowservice/process" enctype="multipart/form-data" id="myform">
 		<input type='hidden' name='workflowID' value = '<?php echo $this->workflow->id ?>' />
 		<div id="form"></div>
+		<?php
+		if (isset($this->alpaca_adv_id)) { ?>
+		<div id="advanced">
+			<i class="ui-icon ui-icon-triangle-1-e large"></i>
+			<span class="advanced_title">Advanced Parameters</span>
+			
+			<div id="adv1"></div>
+		</div>
+		<?php } ?>
 		<input type="submit" name="submit_job">
 		</form>
 	</section>
@@ -171,6 +197,11 @@ $(document).ready(function() {
 <?php if (isset($this->alpaca_file_id)) { 
 	echo 'var wf_array = ' . json_encode($wf_array) . ";\n";
 	echo 'var alpaca_file_ids = '. $this->alpaca_file_id . ";\n";
+}
+
+	 if (isset($this->alpaca_adv_id)) { 
+	echo 'var adv_array = ' . json_encode($adv_array) . ";\n";
+	echo 'var alpaca_adv_ids = '. $this->alpaca_adv_id . ";\n";
 }
 
 	echo '	var data = ' . json_encode($data_array) . ";\n";
@@ -308,6 +339,32 @@ $(document).ready(function() {
 									
 			}	
 		});
+		
+		// handle display of advanced parameters		
+        $.each(adv_array, function(number, val) {
+        	// grab the field html
+			var a = $('#alpaca' + number + '-item-container').html();
+			
+			// grab the field value
+			var a_tmp = $("#alpaca" + number).val();
+
+			// remove the adv param field from the main display
+			$("#alpaca" + number + '-item-container').remove();
+			
+			// append the adv param field to the adv param area
+			$( "#adv1" ).append( a);
+			
+			// set the value of the adv param field
+			$("#alpaca" + number).val(a_tmp);
+        });
+        
+		// toggle the adv param icon and display
+		$('.ui-icon').click( function () {
+			$("#adv1").toggle();
+			$("i",this).toggleClass("ui-icon-triangle-1-e ui-icon-triangle-1-s");
+		});
+
+
 	 },       	
         "view": "VIEW_WEB_EDIT"
     });
