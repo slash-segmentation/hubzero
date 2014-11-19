@@ -166,7 +166,11 @@ defined('_JEXEC') or die( 'Restricted access' );
 
 	#advanced { padding-bottom: 20px; }
 	.advanced_title {font-size: 1.2em; font-weight: bold; }
-	#adv1 { padding-left: 20px; display: none;}
+	#adv1 { padding-left: 20px; display: none; }
+	
+	#boxo { }
+	#lefto { position: relative; float: left; width: 600px; }
+	#righto { position: relative; float: left; width: 450px; }
 </style>
 
 	<header id="content-header">
@@ -174,21 +178,34 @@ defined('_JEXEC') or die( 'Restricted access' );
 	</header><!-- / #content-header -->
 	
 	<section class="main section">
-		<div><?php echo nl2br($this->workflow->description); ?></div>
+		<div id="boxo">
+			<div id="lefto">
+				<div><?php echo nl2br($this->workflow->description); ?></div>
 
-		<form method="post" action="/workflowservice/process" enctype="multipart/form-data" id="myform">
-		<input type='hidden' name='workflowID' value = '<?php echo $this->workflow->id ?>' />
-		<div id="form"></div>
-		<?php
-		if (isset($this->alpaca_adv_id)) { ?>
-		<div id="advanced">
-			<i class="ui-icon ui-icon-triangle-1-e large"></i>
-			<span class="advanced_title">Advanced Parameters</span>
+				<form method="post" action="/workflowservice/process" enctype="multipart/form-data" id="myform">
+				<input type='hidden' name='workflowID' value = '<?php echo $this->workflow->id ?>' />
+		
+		
+				<div id="form"></div>
+				<?php
+				if (isset($this->alpaca_adv_id)) { ?>
+				<div id="advanced">
+					<i class="ui-icon ui-icon-triangle-1-e large"></i>
+					<span class="advanced_title">Advanced Parameters</span>
 			
-			<div id="adv1"></div>
+					<div id="adv1"></div>
+				</div>
+				<?php } ?>
+				<input type="submit" name="submit_job">
+			
+			</div>
+			<div id="righto">
+				<div class="advanced_title">Release Notes</div>
+				<?php echo nl2br($this->workflow->releaseNotes); ?>
+			</div>
 		</div>
-		<?php } ?>
-		<input type="submit" name="submit_job">
+		
+			
 		</form>
 	</section>
 
