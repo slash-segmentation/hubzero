@@ -169,12 +169,16 @@ public function previewTask() {
 //		$workflow = json_decode($wf2);
 
 		$counter = 2;
-		$af_array = array();
+		$af_array = array(); // alpaca file array
+		$adv_array = array(); // advanced parameter array
 		foreach ($workflow->parameters as $wf) {
 			if ($wf->type == 'file') {
 				$af_array[$wf->name] = $counter;
 				$this->view->alpaca_file_id = json_encode($af_array);
-
+			}
+			if ($wf->isAdvanced == true) {
+				$adv_array[$wf->name] = $counter;
+				$this->view->alpaca_adv_id = json_encode($adv_array);
 			}
 			$counter++;
 		}
@@ -376,6 +380,10 @@ public function deletejobTask() {
 	
 	/*** Show list of workspace files ***/
 	public function WorkspaceFilesTask() {
+		$document = JFactory::getDocument();
+		$document->addStyleSheet( "/media/DataTables-1.10.1/css/jquery.dataTables.css" );
+		$document->addScript( "/media/DataTables-1.10.1/js/jquery.dataTables.js" );
+
 		$juser = JFactory::getUser();
 	
 		$files_json = file_get_contents(API_DEFAULT . "/rest/workspacefiles?owner=" . $juser->username . "&userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a");
@@ -389,6 +397,10 @@ public function deletejobTask() {
 
 	/*** Generates JSON list of workspace files using pagination instructions from DataTables JS library ***/
 	public function WorkspaceFilesJSONTask() {
+		$document = JFactory::getDocument();
+		$document->addStyleSheet( "/media/DataTables-1.10.1/css/jquery.dataTables.css" );
+		$document->addScript( "/media/DataTables-1.10.1/js/jquery.dataTables.js" );
+
 		$juser = JFactory::getUser();
 
 	/* these work:
