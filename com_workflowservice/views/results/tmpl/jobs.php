@@ -31,6 +31,15 @@
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die( 'Restricted access' );
 
+// map css colors to job status
+$error_color['Workspace Sync'] = 'yellow';
+$error_color['Error'] = 'red';
+$error_color['Running'] = 'green';
+$error_color['In Queue'] = 'green';
+$error_color['Pending'] = 'green';
+$error_color['Paused'] = 'orange';
+$error_color['Completed'] = 'black';
+
 ?>
 	<header id="content-header">
 		<h2>My Jobs</h2>
@@ -51,9 +60,7 @@ defined('_JEXEC') or die( 'Restricted access' );
 	.job_error { padding: 3px; background: red; color: white; }
 </style>
 
-
 <?php
-
 	echo "<table border='1' cellpadding='1' cellspacing='0' id='jobs'>\n";
 	echo "<thead>\n";
 	echo "<tr><th>Job Name</th><th>ID</th><th>Workflow Name</th><th>Owner</th><th>Status</th><th>Created</th><th></th></tr>\n";
@@ -73,8 +80,8 @@ defined('_JEXEC') or die( 'Restricted access' );
 		echo "<td>$workflow_name (version " . $workflow_version. ")</td>";
 		echo "<td>$task->owner</td>";
 		
-		if ($task->status == 'Error')
-			echo "<td><span class='job_error'>$task->status</span></td>";
+		if ($task->status !== 'Completed') 
+			echo "<td><span style='color: white; padding: 3px; background: " . $error_color[$task->status] . "'>$task->status</span></td>";
 		else
 			echo "<td>$task->status</td>";
 			
