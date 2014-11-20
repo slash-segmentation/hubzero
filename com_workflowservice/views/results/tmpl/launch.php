@@ -182,7 +182,7 @@ defined('_JEXEC') or die( 'Restricted access' );
 			<div id="lefto">
 				<div><?php echo nl2br($this->workflow->description); ?></div>
 
-				<form method="post" action="/workflowservice/process" enctype="multipart/form-data" id="myform">
+				<form name="myform" method="post" action="/workflowservice/processJSON" enctype="multipart/form-data" id="myform">
 				<input type='hidden' name='workflowID' value = '<?php echo $this->workflow->id ?>' />
 		
 		
@@ -386,7 +386,32 @@ $(document).ready(function() {
         "view": "VIEW_WEB_EDIT"
     });
 
-
+$("#myform").submit(function(e)
+{
+	var postData = $(this).serializeArray();
+	var formURL = $(this).attr("action");
+	$.ajax(
+	{
+		url : formURL,
+		type: "POST",
+		data : postData,
+		success:function(data, textStatus, jqXHR) {
+			var obj = jQuery.parseJSON( data );
+			if (obj.status === "success") {
+				$( location ).attr("href", "/workflowservice/jobs");
+			} else {
+				obj.reason = obj.reason.replace(/<br \/>/g, "\n");
+				alert("There was an error with your job submission: \n" + obj.reason.replace(/&quot;/g,'"'))
+			}	
+		},
+		error: function(jqXHR, textStatus, errorThrown) 
+		{
+		}
+	});
+    e.preventDefault();	//STOP default action
+});
+	
+//$("#myform").submit(); //SUBMIT FORM
 });
 
 	function formatDate(date, fmt) {
