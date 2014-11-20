@@ -91,7 +91,6 @@ class WorkflowserviceControllerResults extends \Hubzero\Component\SiteController
 	
 		// Push some scripts and styles to the tmeplate
 		$this->_getStyles();
-
 		$this->_getScripts();
 
 		// Build the page title
@@ -102,19 +101,39 @@ class WorkflowserviceControllerResults extends \Hubzero\Component\SiteController
 		$document->setTitle($this->view->title);
 		
 		$build_url = API_DEFAULT . "/rest/workflows?userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a";
-//		$workflows = json_decode($build_url));
 		$workflows = json_decode(file_get_contents(API_DEFAULT . "/rest/workflows?userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a"));
 		$this->view->workflows = $workflows;
+
+		// Category mapping for known workflows
+		$category_mapping['Data Transfer']['NCMIR Data Import'] = 1;
+		$category_mapping['Data Transfer']['Import Data NCMIR'] = 1;
+		$category_mapping['Data Transfer']['Export Data NCMIR'] = 1;
+		$category_mapping['Workspace File Validation']['CHM training dataset'] = 1;
+		$category_mapping['Workspace File Validation']['CHM image dataset'] = 1;
+		$category_mapping['Automated Segmentation']['CHM'] = 1;
+		$category_mapping['Automated Segmentation']['CHM Train'] = 1;
+//		$category_mapping['Visualization'] = 1;
+		$category_mapping['Hidden']['Example Workflow'] = 1;
+		$category_mapping['Hidden']['MDCADD'] = 1;
 		
-		foreach($workflows as $wf) {
-//			echo $wf->name . "<br />\n";
-		}	
+		// if the workflow doesn't map to a category, put it in Hidden
+		foreach ($workflows as $wf) {
+			$found = false;
+			foreach (array_keys($category_mapping) as $cat) {
+				if (isset($category_mapping[$cat][$wf->name])) {
+					$found = true;
+				}	
+			}
+			if (!($found))
+				$category_mapping['Hidden'][$wf->name] = 1;
+		}			
 		
+		$this->view->mapped_categories = $category_mapping;
+		$this->view->show_hidden_categories = true;
+
 		// Output HTML
-		if ($this->getError()) 
-		{
-			foreach ($this->getErrors() as $error)
-			{
+		if ($this->getError()) {
+			foreach ($this->getErrors() as $error) {
 				$this->view->setError($error);
 			}
 		}
@@ -436,9 +455,10 @@ public function deletejobTask() {
 		
 		if ($results_json->summaryOfErrors) {
 			$err_string = '';
+			$err_html = '';
 			
 			foreach (explode("\n", $results_json->summaryOfErrors) as $err) {
-				$err_string .= $err . "<br />";
+				$err_string .= trim($err) . "<br />";
 			}		
 			echo '{ "status": "error", "reason": "' . str_replace('"', '&quot;', $err_string) . '"}';
 			exit;
