@@ -378,7 +378,77 @@ public function deletejobTask() {
 
 	}
 	
-	/*** Show list of workspace files ***/
+
+	public function processJSONTask() {
+		// If user tries to load "process" page with accessing it thru a form submission, send them to workflow listing
+		if (!(isset($_POST['workflowID']))) {
+			echo "<script type='text/javascript'>alert('Invalid form submission. Redirecting to Workflow list ...');";
+			$redirectUrl = "/workflowservice";
+			echo "window.location = '" . $redirectUrl . "'";
+			echo "</script>\n";
+			exit;
+		}
+		
+		$this->view->json->id = null;
+		$this->view->json->name = $_POST['_formCWS_jobname'];
+		
+		$user = JFactory::getUser();
+		$this->view->json->owner = $user->username;
+		
+		$form_array = array();
+
+		// For willy test job, I removed the following file block. If the form has a file, is this needed?
+//		array_push($form_array, array('name' => 'examplefile', 'value'=> 'jasdfasd'));
+
+		foreach (array_keys($_POST) as $posted) {
+			$fieldname = str_replace('_form', '', $posted);
+			if (substr($posted, 0, 5) == '_form') {
+				if (isset($_POST['isFile_' . str_replace('_form', '', $posted)])) {
+					array_push($form_array, array('name' => $fieldname, 'value' => $_POST[$posted], 'isWorkspaceId' => 1));
+				} else {
+					array_push($form_array, array('name' => $fieldname, 'value' => $_POST[$posted]));
+				}	
+			}
+		}
+
+//		$this->view->json->parameters = array(array('name' => 'param1', 'value'=> 'jasdfasd'), array('name'=>'asdfasd', 'value'=> 'asdfasd'));
+		$this->view->json->parameters = $form_array;
+		$this->view->json->workflow->id = $_POST['workflowID'];
+		$this->view->json->workflow->parentWorkflow = null;
+
+		$newjson = json_encode($this->view->json);
+
+	 	$url = API_DEFAULT . '/rest/jobs?runasuser=' . $user->username . '&userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a';
+
+		$ch=curl_init($url);
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $newjson);
+		curl_setopt($ch, CURLOPT_HEADER, false);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER,
+				   array('Content-Type:application/json')
+				   );
+
+		$results = curl_exec($ch);
+		curl_close($ch);
+
+		$results_json = json_decode($results);
+		
+		if ($results_json->summaryOfErrors) {
+			$err_string = '';
+			
+			foreach (explode("\n", $results_json->summaryOfErrors) as $err) {
+				$err_string .= $err . "<br />";
+			}		
+			echo '{ "status": "error", "reason": "' . str_replace('"', '&quot;', $err_string) . '"}';
+			exit;
+		} elseif($results_json->id) {
+			echo '{ "status": "success" }';
+			exit;
+		}
+
+	}
+		/*** Show list of workspace files ***/
 	public function WorkspaceFilesTask() {
 		$document = JFactory::getDocument();
 		$document->addStyleSheet( "/media/DataTables-1.10.1/css/jquery.dataTables.css" );
