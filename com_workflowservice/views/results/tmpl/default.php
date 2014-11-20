@@ -39,14 +39,16 @@ defined('_JEXEC') or die( 'Restricted access' );
 	<section class="main section">
 
 <style>
-#lefto { float: left; padding-left: 10px;}
+#lefto { float: left; padding-left: 0px;}
 #righto { float: left; padding-left: 10px; height: 600px; }
 #blocked { padding-left: 0px; }
-.wfNames { padding-bottom: 10px; font-weight: bold;}
+.cats, .wfNames { padding-bottom: 10px; font-weight: bold;}
 ul, li {list-style: none outside none; }
 </style>
 
 <?php
+	$mapped_categories = $this->mapped_categories;
+	
 	$all_descriptions = '';
 	echo "<div id='blocked'>\n";
 	echo "<p>Here are the available workflows:</p>\n";
@@ -58,18 +60,30 @@ ul, li {list-style: none outside none; }
 			$workflows[$wf->name][$wf->version] = $wf->id;
 		}	
 
-		// sort each workflow by version number
-		foreach (array_keys($workflows) as $wf_name) {
-			// sort by array keys
-			ksort($workflows[$wf_name]);
+		foreach (array_keys($mapped_categories) as $cats) {
+			// only show Hidden categories if "show_hidden_categories" flag is true
+			if (($cats !== 'Hidden') || ($this->show_hidden_categories)) {
+				echo "<li class='cats'>$cats\n";
+				echo "<ul>\n";
+			
+				foreach (array_keys($mapped_categories[$cats]) as $categorized_wf) {
+					// sort each workflow by version number
+					foreach (array_keys($workflows) as $wf_name) {
+						// sort by array keys
+						ksort($workflows[$wf_name]);
 
-			// loop through workflow list and only show the workflow with the max version number
-			foreach ($this->workflows as $wf) {
-				if (($wf->name == $wf_name) && ($wf->version == max(array_keys($workflows[$wf_name])))) {
-					echo '<li class="wfNames" id="' . $wf->id . '"><a href="workflowservice/launch/' . $wf->id . '-' . str_replace(" " , "", urlencode($wf->name)) . '">' . $wf->name . " (version " . $wf->version . ")</a></li>\n";
-					$all_descriptions .= '<div id="description_' . $wf->id . '" style="display: none">' . nl2br($wf->description) . '</div>' . "\n";
+						// loop through workflow list and only show the workflow with the max version number
+						foreach ($this->workflows as $wf) {
+							if (($wf->name == $categorized_wf) && ($wf->name == $wf_name) && ($wf->version == max(array_keys($workflows[$wf_name])))) {
+								echo '<li class="wfNames" id="' . $wf->id . '"><a href="workflowservice/launch/' . $wf->id . '-' . str_replace(" " , "", urlencode($wf->name)) . '">' . $wf->name . " (ver " . $wf->version . ")</a></li>\n";
+								$all_descriptions .= '<div id="description_' . $wf->id . '" style="display: none">' . nl2br($wf->description) . '</div>' . "\n";
+							}
+						}
+					}
 				}
-			}
+				echo "</ul>\n";
+				echo "</li>\n";
+			}	
 		}	
 	}
 	echo "</div></aside></div>\n";
