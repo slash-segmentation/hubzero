@@ -129,7 +129,7 @@ class WorkflowserviceControllerResults extends \Hubzero\Component\SiteController
 		}			
 		
 		$this->view->mapped_categories = $category_mapping;
-		$this->view->show_hidden_categories = true;
+		$this->view->show_hidden_categories = false;
 
 		// Output HTML
 		if ($this->getError()) {
@@ -172,6 +172,14 @@ public function previewTask() {
 
 	
 	public function launchTask() {
+		// If user tries to load "launch" page without a workflow, send them to workflow listing
+		if (!(isset($_POST['workflowID']))) {
+			echo "<script type='text/javascript'>alert('Invalid workflow. Redirecting to Workflow list ...');";
+			$redirectUrl = "/workflowservice";
+			echo "window.location = '" . $redirectUrl . "'";
+			echo "</script>\n";
+			exit;
+		}
 		$document = JFactory::getDocument();
 		$document->addStyleSheet( "/media/DataTables-1.10.1/css/jquery.dataTables.css" );
 		$document->addScript( "/media/DataTables-1.10.1/js/jquery.dataTables.js" );
@@ -194,7 +202,11 @@ public function previewTask() {
 			if ($wf->type == 'file') {
 				$af_array[$wf->name] = $counter;
 				$this->view->alpaca_file_id = json_encode($af_array);
+			} elseif ($wf->type == 'checkbox') {
+				$cb_array[$wf->name] = $counter;
+				$this->view->alpaca_checkbox = json_encode($cb_array);
 			}
+
 			if ($wf->isAdvanced == true) {
 				$adv_array[$wf->name] = $counter;
 				$this->view->alpaca_adv_id = json_encode($adv_array);
@@ -419,6 +431,14 @@ public function deletejobTask() {
 		// For willy test job, I removed the following file block. If the form has a file, is this needed?
 //		array_push($form_array, array('name' => 'examplefile', 'value'=> 'jasdfasd'));
 
+		// send checkbox field data as either true/false rather than the default on/nothing
+		if (isset($_POST['checkbox_fields'])) {
+			foreach ($_POST['checkbox_fields'] as $cb) {
+				if ($_POST['_form' . $cb] == 'on')
+					$_POST['_form' . $cb] = 'true';
+			}
+		}	  
+
 		foreach (array_keys($_POST) as $posted) {
 			$fieldname = str_replace('_form', '', $posted);
 			if (substr($posted, 0, 5) == '_form') {
@@ -610,12 +630,57 @@ if ($test) {
 	}
 
 	public function JobDetailsTask() {
+		// If user tries to load "jobdetails" page without passing it a job, send them to jobs listing
+		if (!(isset($_POST['workflowID']))) {
+			echo "<script type='text/javascript'>alert('Invalid job. Redirecting to Job list ...');";
+			$redirectUrl = "/workflowservice/jobs";
+			echo "window.location = '" . $redirectUrl . "'";
+			echo "</script>\n";
+			exit;
+		}
+		$document = JFactory::getDocument();
+		$document->addStyleSheet( "/media/DataTables-1.10.1/css/jquery.dataTables.css" );
+		$document->addScript( "/media/DataTables-1.10.1/js/jquery.dataTables.js" );
+
 		$router =& JSite::getRouter();
 		$var = $router->getVars();
 		$task_json = file_get_contents(API_DEFAULT . "/rest/jobs/{$var['period']}?userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a");
+//		$task_json = file_get_contents("jobdetail.json");
+
 		$task = json_decode($task_json);
 		$this->view->task = $task;
+		$this->view->workflow_name = $task->workflow->name . " (version " . $task->workflow->version . ")";
+		$this->view->my_parameters = $task->parameters;
+		
+		$workflow_json = file_get_contents(API_DEFAULT . "/rest/workflows/" . $task->workflow->id . "?userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a");
+		$this->view->original_workflow = json_decode($workflow_json);
 
+
+		$counter = 2;
+		$af_array = array(); // alpaca file array
+		$adv_array = array(); // advanced parameter array
+		foreach ($task->workflow->parameters as $wf) {
+			if ($wf->type == 'file') {
+				$af_array[$wf->name] = $counter;
+				$this->view->alpaca_file_id = json_encode($af_array);
+			}
+			if ($wf->isAdvanced == true) {
+				$adv_array[$wf->name] = $counter;
+				$this->view->alpaca_adv_id = json_encode($adv_array);
+			}
+			$counter++;
+		}
+		
+		$afd = array();
+		foreach ($task->parameters as $params) {
+			if ($params->workflowParameter->type == 'file') {
+				$file_json = file_get_contents(API_DEFAULT . "/rest/workspacefiles/" . $params->value . "?userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a");
+				$tmp = json_decode($file_json, TRUE);
+				array_push($afd, $tmp);
+			}
+		}
+		$this->view->input_files = $afd;
+		
         // Output the HTML  
         $this->view->display();		
 
