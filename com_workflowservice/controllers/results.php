@@ -172,14 +172,6 @@ public function previewTask() {
 
 	
 	public function launchTask() {
-		// If user tries to load "launch" page without a workflow, send them to workflow listing
-		if (!(isset($_POST['workflowID']))) {
-			echo "<script type='text/javascript'>alert('Invalid workflow. Redirecting to Workflow list ...');";
-			$redirectUrl = "/workflowservice";
-			echo "window.location = '" . $redirectUrl . "'";
-			echo "</script>\n";
-			exit;
-		}
 		$document = JFactory::getDocument();
 		$document->addStyleSheet( "/media/DataTables-1.10.1/css/jquery.dataTables.css" );
 		$document->addScript( "/media/DataTables-1.10.1/js/jquery.dataTables.js" );
@@ -189,6 +181,15 @@ public function previewTask() {
 
 		$router =& JSite::getRouter();
 		$var = $router->getVars();
+
+		// If user tries to load "launch" page without a workflow, send them to workflow listing
+		if (!(isset($var['period']))) {
+			echo "<script type='text/javascript'>alert('Invalid workflow. Redirecting to Workflow list ...');";
+			$redirectUrl = "/workflowservice";
+			echo "window.location = '" . $redirectUrl . "'";
+			echo "</script>\n";
+			exit;
+		}
 
 		$seg = explode('-', $var['period']);
 		$workflow = json_decode(file_get_contents(API_DEFAULT . "/rest/workflows/" . $seg[0] . "?userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a"));
@@ -630,8 +631,11 @@ if ($test) {
 	}
 
 	public function JobDetailsTask() {
+		$router =& JSite::getRouter();
+		$var = $router->getVars();
+
 		// If user tries to load "jobdetails" page without passing it a job, send them to jobs listing
-		if (!(isset($_POST['workflowID']))) {
+		if (!(isset($var['period']))) {
 			echo "<script type='text/javascript'>alert('Invalid job. Redirecting to Job list ...');";
 			$redirectUrl = "/workflowservice/jobs";
 			echo "window.location = '" . $redirectUrl . "'";
@@ -642,8 +646,6 @@ if ($test) {
 		$document->addStyleSheet( "/media/DataTables-1.10.1/css/jquery.dataTables.css" );
 		$document->addScript( "/media/DataTables-1.10.1/js/jquery.dataTables.js" );
 
-		$router =& JSite::getRouter();
-		$var = $router->getVars();
 		$task_json = file_get_contents(API_DEFAULT . "/rest/jobs/{$var['period']}?userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a");
 //		$task_json = file_get_contents("jobdetail.json");
 
