@@ -184,7 +184,16 @@ defined('_JEXEC') or die( 'Restricted access' );
 
 				<form name="myform" method="post" action="/workflowservice/processJSON" enctype="multipart/form-data" id="myform">
 				<input type='hidden' name='workflowID' value = '<?php echo $this->workflow->id ?>' />
-		
+		<?php
+	if (isset($this->alpaca_checkbox)) { 
+		$cb = json_decode($this->alpaca_checkbox);
+		foreach ($cb as $key=>$value) {
+			echo '<input type="hidden" name="checkbox_fields[]" value="' . $key . '" />' . "\n";
+			echo "<input type='hidden' name='_form" . $key . "' value='false' />\n";
+		}	
+	}	
+?>
+
 		
 				<div id="form"></div>
 				<?php
@@ -196,7 +205,8 @@ defined('_JEXEC') or die( 'Restricted access' );
 					<div id="adv1"></div>
 				</div>
 				<?php } ?>
-				<input type="submit" name="submit_job">
+			<button class="btn btn-info" id="simple-post" name="submit_job">Submit Job</button>
+			<div id="errors"></div>
 			
 			</div>
 			<div id="righto">
@@ -205,7 +215,7 @@ defined('_JEXEC') or die( 'Restricted access' );
 			</div>
 		</div>
 		
-			
+							
 		</form>
 	</section>
 
