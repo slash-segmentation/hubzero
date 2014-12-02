@@ -129,7 +129,13 @@ class WorkflowserviceControllerResults extends \Hubzero\Component\SiteController
 		}			
 		
 		$this->view->mapped_categories = $category_mapping;
-		$this->view->show_hidden_categories = false;
+
+		// allow viewing of hidden category for some users 
+		if (in_array($juser->username, array('admin', 'churas', 'dlee', 'yoyoman')))
+			$this->view->show_hidden_categories = true;
+		else
+			$this->view->show_hidden_categories = false;
+		
 
 		// Output HTML
 		if ($this->getError()) {
