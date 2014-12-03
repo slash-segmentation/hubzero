@@ -135,7 +135,6 @@ class WorkflowserviceControllerResults extends \Hubzero\Component\SiteController
 			$this->view->show_hidden_categories = true;
 		else
 			$this->view->show_hidden_categories = false;
-		
 
 		// Output HTML
 		if ($this->getError()) {
@@ -178,13 +177,9 @@ public function previewTask() {
 
 	
 	public function launchTask() {
-		$document = JFactory::getDocument();
-		$document->addStyleSheet( "/media/DataTables-1.10.1/css/jquery.dataTables.css" );
-		$document->addScript( "/media/DataTables-1.10.1/js/jquery.dataTables.js" );
-	
-	//  Array ( ) [baseurl] => [option] => com_cws [task] => launch [controller] => results )
-	//  Array ( [option] => com_cws [Itemid] => [task] => launch [period] => 4-wf4 )
-
+		// get URI data
+		//  Array ( ) [baseurl] => [option] => com_cws [task] => launch [controller] => results )
+		//  Array ( [option] => com_cws [Itemid] => [task] => launch [period] => 4-wf4 )
 		$router =& JSite::getRouter();
 		$var = $router->getVars();
 
@@ -196,43 +191,179 @@ public function previewTask() {
 			echo "</script>\n";
 			exit;
 		}
-
+	
+		// get JSON for workflow
 		$seg = explode('-', $var['period']);
 		$workflow = json_decode(file_get_contents(API_DEFAULT . "/rest/workflows/" . $seg[0] . "?userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a"));
 //		$wf2 = file_get_contents("nofilefield.json");
 //		$workflow = json_decode($wf2);
 
-		$counter = 2;
+		// not sure why alpaca indexing starts at 2
+		$counter = 3;
 		$af_array = array(); // alpaca file array
+		$cb_array = array(); // alpaca checkbox array
 		$adv_array = array(); // advanced parameter array
+		$req_file_array = array(); // required file parameter array
+
+		$schema_array = array(); // for schema properties
+		$option_array = array(); // for option fields
+		$data_array = array(); // for data
+
+		$juser = JFactory::getUser();
+
+		// file, checkbox and adv parameters need special postRender processing
 		foreach ($workflow->parameters as $wf) {
 			if ($wf->type == 'file') {
 				$af_array[$wf->name] = $counter;
-				$this->view->alpaca_file_id = json_encode($af_array);
 			} elseif ($wf->type == 'checkbox') {
 				$cb_array[$wf->name] = $counter;
-				$this->view->alpaca_checkbox = json_encode($cb_array);
 			}
 
 			if ($wf->isAdvanced == true) {
 				$adv_array[$wf->name] = $counter;
-				$this->view->alpaca_adv_id = json_encode($adv_array);
 			}
+
+			// set default data values, notifyemail = logged in user's email
+			if ($wf->name == 'CWS_notifyemail')
+				$data_array[$wf->name] = $juser->email;
+			else
+				$data_array[$wf->name] = $wf->value;
+
+			// other defaults ...
+			$schema_array[$wf->name]['type'] = 'string';
+			$option_array[$wf->name]['fieldClass'] = 'myClass';
+
+			// All fields will get a "Label", except for hidden ones	
+			if ($wf->type == 'hidden') {
+				// give the jobname a proper names
+				if ($wf->name == 'CWS_jobname') {
+					$option_array[$wf->name] = array('label'=>'Job Name');
+					$data_array[$wf->name] = $wf->value;
+				} else 
+					$option_array[$wf->name]['type'] = 'hidden';
+			} else	
+				$option_array[$wf->name] = array('label'=>$wf->displayName);
+			
+			// help text
+			$option_array[$wf->name]['helper'] = $wf->help;
+
+			// validation data
+			switch ($wf->type) {
+				case "textarea":
+						$option_array[$wf->name]['type'] = 'textarea';
+						$option_array[$wf->name]['rows'] = $wf->rows;
+						$option_array[$wf->name]['cols'] = $wf->columns;
+						$data_array[$wf->name] = $wf->value;
+					break;
+				
+				case "file":
+					$schema_array[$wf->name]['type'] = 'string';
+					
+					$wf_split = explode("?", $wf->value);
+					$tmp = str_replace("[form]", "", $wf->name);
+					$data_array[$wf->name] = '';
+					
+					/* will manually test for validation instead of using alpaca */
+					if ($wf->isRequired) {
+//						$schema_array[$wf->name]['required'] = 'true';
+						$req_file_array[$wf->name] = $counter;
+					}	 
+					
+					$wf_array[$counter] = $wf_split[1];
+					break;
+
+				case "text":
+					if ($wf->validationType == 'digits')
+						$option_array[$wf->name]['type'] = 'integer';
+					elseif ($wf->validationType == 'number')
+						$option_array[$wf->name]['type'] = 'number';
+					elseif (($wf->validationType == 'email') && ($wf->isRequired)) {
+						$option_array[$wf->name]['type'] = 'email';
+						$option_array[$wf->name]['allowOptionalEmpty'] = true;
+						$schema_array[$wf->name]['format'] = 'email';
+					}	
+					
+					if ($option_array[$wf->name]['type'] !== 'string') {	
+						$option_array[$wf->name]['validate'] = true;
+						$schema_array[$wf->name]['minimum'] = $wf->minValue;
+						$schema_array[$wf->name]['maximum'] = $wf->maxValue;
+						$schema_array[$wf->name]['pattern'] = $wf->validationRegex;
+					}	 
+					break;
+				
+				case "dropdown":
+					$option_array[$wf->name]['type'] = 'select';
+					$option_array[$wf->name]['dataSource'] = $wf->valueMap;
+					$option_array[$wf->name]['removeDefaultNone'] = true;
+					$data_array[$wf->name] = $wf->selected;
+					break;
+				
+				case "checkbox":
+					$option_array[$wf->name]['rightLabel'] = $wf->displayName;
+					$option_array[$wf->name]['type'] = 'checkbox';
+					unset($option_array[$wf->name]['label']);
+	
+					$counter++;
+					$bracketed = "isCheckbox_";
+					$bracketed .= $wf->name;
+					$schema_array[$bracketed]['type'] = 'string';
+					$option_array[$bracketed]['type'] = 'hidden';
+//					$data_array[$bracketed]['value'] = $counter;
+					break;
+			}			
 			$counter++;
 		}
 
-// Instantiate a new view  
-    //    $view = new JView( array('name'=>'launch') );  
-          
-        // Pass the view any data it may need  
-      //  $view->greeting = 'Hello, World!';  
-		$juser = JFactory::getUser();
-		$this->view->name = $juser->name;
-		$this->view->username = $juser->username;
-		          
-       $this->view->owner = $juser->username;
-       $this->view->notifyemail = $juser->email;
-       $this->view->workflow = $workflow;
+		// If CWS_jobname is given in the JSON, it was handled above. If not in JSON, handle here
+		$cws = 'CWS_jobname';
+		if (!(isset($option_array[$cws]))) {	
+			$option_array[$cws] = array('label'=>'Job Name');
+			$data_array[$cws] = '';
+			$schema_array[$cws]['type'] = 'string';
+		}	
+
+		$cws = '[form]CWS_user';
+		if (!(isset($option_array[$cws]))) {	
+			$data_array[$cws] = $this->owner;
+		}	
+
+		/* override owner = user in the CHM */
+		 $data_array[$cws] = $this->owner;
+
+		/* Need to pass the workflow ID , so create it Alapaca style */
+		$data_array['workflowID'] = $workflow->id;
+		$option_array['workflowID'] = 'hidden';
+		$schema_array['workflowID'] = 'string';
+	/*
+			class o_schema {};
+			class o_options {};
+			class o_data {};
+	*/
+	
+		$o_schema->type = 'object';
+		$o_schema->properties = $schema_array;
+		$o_options->fields = $option_array;
+
+		$this->view->workflow_name = $workflow->name;
+		$this->view->workflow_description = $workflow->description;
+		$this->view->release_notes = $workflow->releaseNotes;
+		
+		$this->view->alpaca_checkbox = json_encode($cb_array);
+		$this->view->alpaca_file_id = json_encode($af_array);
+		$this->view->alpaca_adv_id = json_encode($adv_array);
+		$this->view->alpaca_wf_array = json_encode($wf_array);
+		$this->view->alpaca_req_file_array = json_encode($req_file_array);
+
+		$this->view->alpaca_data = json_encode($data_array);
+		$this->view->alpaca_schema = json_encode($o_schema);
+		
+		$str = ltrim (json_encode($o_options), '{');
+		$this->view->alpaca_options = substr($str, 0, -1) . "\n";
+
+		$document = JFactory::getDocument();
+		$document->addStyleSheet( "/media/DataTables-1.10.1/css/jquery.dataTables.css" );
+		$document->addScript( "/media/DataTables-1.10.1/js/jquery.dataTables.js" );
+
 
         // Output the HTML  
         $this->view->display();  	
@@ -426,9 +557,9 @@ public function deletejobTask() {
 			echo "</script>\n";
 			exit;
 		}
-		
+
 		$this->view->json->id = null;
-		$this->view->json->name = $_POST['_formCWS_jobname'];
+		$this->view->json->name = $_POST['CWS_jobname'];
 		
 		$user = JFactory::getUser();
 		$this->view->json->owner = $user->username;
@@ -439,22 +570,22 @@ public function deletejobTask() {
 //		array_push($form_array, array('name' => 'examplefile', 'value'=> 'jasdfasd'));
 
 		// send checkbox field data as either true/false rather than the default on/nothing
-		if (isset($_POST['checkbox_fields'])) {
-			foreach ($_POST['checkbox_fields'] as $cb) {
-				if ($_POST['_form' . $cb] == 'on')
-					$_POST['_form' . $cb] = 'true';
-			}
-		}	  
-
 		foreach (array_keys($_POST) as $posted) {
-			$fieldname = str_replace('_form', '', $posted);
-			if (substr($posted, 0, 5) == '_form') {
-				if (isset($_POST['isFile_' . str_replace('_form', '', $posted)])) {
-					array_push($form_array, array('name' => $fieldname, 'value' => $_POST[$posted], 'isWorkspaceId' => 1));
+			if (preg_match("/isCheckbox_(.*)/", $posted, $matches)) {
+				if (isset($_POST[$matches[1]])) {
+					$_POST[$matches[1]] = 'true';
 				} else {
-					array_push($form_array, array('name' => $fieldname, 'value' => $_POST[$posted]));
-				}	
+					$_POST[$matches[1]] = 'false';
+				}
+				unset($_POST[$posted]);
 			}
+		}
+		foreach (array_keys($_POST) as $posted) {
+			if (isset($_POST['isFile_' . $posted])) {
+				array_push($form_array, array('name' => $posted, 'value' => $_POST[$posted], 'isWorkspaceId' => 1));
+			} elseif (!(  ($posted == 'workflowID') || ($posted == 'submit') || ($posted == 'option') || (preg_match("/isFile/", $posted) || (preg_match("/files(.*)_length/", $posted))))) {
+				array_push($form_array, array('name' => $posted, 'value' => $_POST[$posted]));
+			}	
 		}
 
 //		$this->view->json->parameters = array(array('name' => 'param1', 'value'=> 'jasdfasd'), array('name'=>'asdfasd', 'value'=> 'asdfasd'));
@@ -671,7 +802,11 @@ if ($test) {
 			if ($wf->type == 'file') {
 				$af_array[$wf->name] = $counter;
 				$this->view->alpaca_file_id = json_encode($af_array);
+			} elseif ($wf->type == 'checkbox') {
+				$cb_array[$wf->name] = $counter;
+				$this->view->alpaca_checkbox = json_encode($cb_array);
 			}
+
 			if ($wf->isAdvanced == true) {
 				$adv_array[$wf->name] = $counter;
 				$this->view->alpaca_adv_id = json_encode($adv_array);
