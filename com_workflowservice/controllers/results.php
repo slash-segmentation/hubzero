@@ -34,11 +34,14 @@ defined('_JEXEC') or die('Restricted access');
 define("API_DEFAULT", "https://crbsworkflow.appspot.com/");
 define("LOGGED_IN_AS", "mikechiu");
 		
-//ximport('Hubzero_Controller');
+$router =& JSite::getRouter();
+$var = $router->getVars();
+$check_user = $var['period'];
 
 // Must be logged in to access workflow service. If not, redirect to login
+// updated to allow 'count' and 'status' calls
 $juser = JFactory::getUser();
-if (empty($juser->username)) {
+if ((empty($juser->username)) && (!(in_array($var['task'], array('count', 'status'))))) {
 	$redirectUrl = urlencode(base64_encode($_SERVER['REQUEST_URI']));
 	$redirectUrl = '&return='.$redirectUrl;
 	$joomlaLoginUrl = 'index.php?option=com_users&view=login';
@@ -857,6 +860,66 @@ print_r($results);
 				$results = curl_exec($ch);
 			}	
 		}
+	}
+	
+	/* 	Displays the last login date for a user 
+		format: /count/time_period_in_integer_minutes 
+	*/
+	public function countTask() {
+		$router =& JSite::getRouter();
+		$var = $router->getVars();
+		
+		$db	=& JFactory::getDBO();
+		$query = $db->getQuery(true);
+
+		if (isset($var['period']) && (!(empty($var['period'])))) {		
+			// activity_time is in minutes
+			$activity_time = time() - $var['period'] * 60;
+
+			$query->select('session_id, time');
+			$query->from('#__session');
+			$query->where("guest = 0 AND time>'$activity_time' ");
+			$db->setQuery( $query );
+			$rows = $db->loadObjectList();
+	
+			echo '{"status":"success","count":"' . count($db->loadResult()) . '"}';
+		} else {
+			echo '{"status":"error", "reason": "time period in minutes is missing"}';
+		}	
+		exit;
+	}
+	
+	/* 	Displays the last login date for a user 
+		format: /status/username
+	*/
+	public function statusTask() {
+		$router =& JSite::getRouter();
+		$var = $router->getVars();
+
+		$db	=& JFactory::getDBO();
+		$query = $db->getQuery(true);
+
+		if (isset($var['period']) && (!(empty($var['period'])))) {		
+			$query->select('username, lastVisitDate');
+			$query->from('#__users');
+			$query->where("username = '" . $var['period'] . "'");
+			$db->setQuery( $query );
+			$rows = $db->loadObjectList();
+		
+			if ($rows) {
+				foreach ($rows as $person) {
+					$person->status = 'success';
+					echo json_encode($person);
+					exit;
+				}	
+			} else {
+				$err_msg = 'user not found';
+			}
+		} else {
+			$err_msg = 'username missing';
+		}
+		echo '{"status":"error", "reason": "' . $err_msg . '"}';
+		exit;			
 	}	
 }	
 	function registerWorkspaceFile($json) {
