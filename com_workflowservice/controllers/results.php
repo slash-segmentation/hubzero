@@ -891,6 +891,8 @@ print_r($results);
 	
 	/* 	Displays the last login date for a user 
 		format: /status/username
+		
+		format: /status will get last login date overall 
 	*/
 	public function statusTask() {
 		$router =& JSite::getRouter();
@@ -905,19 +907,24 @@ print_r($results);
 			$query->where("username = '" . $var['period'] . "'");
 			$db->setQuery( $query );
 			$rows = $db->loadObjectList();
-		
-			if ($rows) {
-				foreach ($rows as $person) {
-					$person->status = 'success';
-					echo json_encode($person);
-					exit;
-				}	
-			} else {
-				$err_msg = 'user not found';
-			}
 		} else {
-			$err_msg = 'username missing';
+			$query->select('username, lastVisitDate');
+			$query->from('#__users');
+			$query->order("lastVisitDate desc");
+			$db->setQuery( $query );
+			$rows = $db->loadObjectList();
 		}
+	
+		if ($rows) {
+			foreach ($rows as $person) {
+				$person->status = 'success';
+				echo json_encode($person);
+				exit;
+			}	
+		} else {
+			$err_msg = 'user not found';
+		}
+
 		echo '{"status":"error", "reason": "' . $err_msg . '"}';
 		exit;			
 	}	
