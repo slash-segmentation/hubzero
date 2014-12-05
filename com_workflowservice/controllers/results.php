@@ -918,6 +918,7 @@ print_r($results);
 		if ($rows) {
 			foreach ($rows as $person) {
 				$person->status = 'success';
+				$person->lastVisitDate = UTCtoLocal($person->lastVisitDate);
 				echo json_encode($person);
 				exit;
 			}	
@@ -947,8 +948,16 @@ print_r($results);
 		return $results;	
 
 	}
-
-
-
 	
+	function UTCtoLocal($local_in_UTC) {
+        date_default_timezone_set("UTC");
 
+        $utc = gmdate("M d Y h:i:s A");
+
+        $timezone = "America/Los_Angeles";
+        date_default_timezone_set($timezone);
+
+        $offset = date('Z', strtotime($utc));
+        
+        return date("Y-m-d H:i:s", strtotime($local_in_UTC) + $offset); 	    
+	}
