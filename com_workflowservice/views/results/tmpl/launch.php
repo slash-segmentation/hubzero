@@ -87,7 +87,7 @@ defined('_JEXEC') or die( 'Restricted access' );
 
 <script type="text/javascript">
 $(document).ready(function() {
-<?php if (isset($this->alpaca_file_id)) { 
+<?php if ((isset($this->alpaca_file_id)) && ($this->alpaca_file_id !== '[]')) { 
 	echo 'var wf_array = ' . $this->alpaca_wf_array . ";\n";
 	echo 'var alpaca_file_ids = '. $this->alpaca_file_id . ";\n";
 } else {
@@ -284,15 +284,6 @@ $(document).ready(function() {
                     form.refreshValidationState(true);
                     // now display something
 
-
-                   		obj = jQuery.parseJSON(' <?php echo $this->alpaca_req_file_array; ?> ');
-						$.each (obj, function(a, b) {
-							if (!($("#alpaca" + b).val().length)) {
-								alert ("You must select a file");
-							}
-						});
-
-
                     if (form.isFormValid()) {
                         var value = form.getValue();
                     } else {
@@ -315,6 +306,22 @@ $(document).ready(function() {
 		
 		$("#alpaca2").submit(function(e)
 		{
+		
+		
+
+                   		obj = jQuery.parseJSON(' <?php echo $this->alpaca_req_file_array; ?> ');
+                   		var stopProcessing = false;
+						$.each (obj, function(a, b) {
+							if (!($("#alpaca" + b).val().length)) {
+								alert ("You must select a file");
+								stopProcessing = true;
+							}
+						});
+
+if (stopProcessing) {
+	e.preventDefault();	//STOP default action
+
+} else {
 			var postData = $(this).serializeArray();
 			var formURL = $(this).attr("action");
 			$.ajax(
@@ -336,6 +343,7 @@ $(document).ready(function() {
 				}
 			});
 			e.preventDefault();	//STOP default action
+	}		
 		});				
 						
 });
