@@ -161,13 +161,14 @@ $(document).ready(function() {
 						$("#workflowfiles" + number).show();
 						$("#selectfile" + number).hide();
 						$("#apply" + number).show();
+						$("#fileID" + number).hide();
 
 					}); 
 
 					$('#files' + number).dataTable( {
 						"processing": true,
 						"serverSide": false,
-						"ajax": "../WorkspaceFilesJSON?" + wf_array,
+						"ajax": "../WorkspaceFilesJSON?" + val,
 						"columns": [
 							{ "data": "name" },
 							{ "data": "id" },
@@ -185,6 +186,15 @@ $(document).ready(function() {
 									return formatDate(new Date(data - (420 * 60 * 1000)), '%Y-%M-%d %H:%m:%s');
 								},
 								"targets": 5
+							},
+							{
+								// The `data` parameter refers to the data for the cell (defined by the
+								// `data` option, which defaults to the column being worked with, in
+								// this case `data: 0`.
+								"render": function ( data, type, row ) {
+									return formatSize(data);
+								},
+								"targets": 3
 							}
 						],
 						"sort": true,    
@@ -347,7 +357,14 @@ if (stopProcessing) {
 		});				
 						
 });
-
+	function formatSize(bytesize) {
+		if (bytesize < 1024) {
+			return "< 1M";
+		} else {
+			var msize = bytesize/1024/1024;
+			return msize.toFixed(1) + "M";
+		}
+	}
 	function formatDate(date, fmt) {
 		function pad(value) {
 			return (value.toString().length < 2) ? '0' + value : value;

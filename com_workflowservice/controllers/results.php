@@ -235,7 +235,7 @@ public function previewTask() {
 					$schema_array[$wf->name]['type'] = 'string';
 					
 					$wf_split = explode("?", $wf->value);
-					$tmp = str_replace("[form]", "", $wf->name);
+					$wf_split[1] = preg_replace("/owner=\w*&/", "owner=" . $juser->username . "&", $wf_split[1]);
 					$data_array[$wf->name] = '';
 					
 					/* will manually test for validation instead of using alpaca */
@@ -611,10 +611,15 @@ public function deletejobTask() {
 
 
 
-$test = 1;
+	$test = 1;
 
-if ($test) {
-		$files_json = file_get_contents(API_DEFAULT . "/rest/workspacefiles?owner=" . $juser->username . "&userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a");
+	if ($test) {
+		$params = "rest/workspacefiles?owner=" . $juser->username . "&userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a";
+		if (JRequest::getVar('type')) {
+			$params .= "&type=" . urlencode(JRequest::getVar('type'));
+		}	
+
+		$files_json = file_get_contents(API_DEFAULT . $params);
 //		$files_json = file_get_contents("workspacefiles.json");
 
 	   // Output the HTML  
