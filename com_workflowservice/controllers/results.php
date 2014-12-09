@@ -1,32 +1,4 @@
 <?php
-/**
- * HUBzero CMS
- *
- * Copyright 2005-2011 Purdue University. All rights reserved.
- *
- * This file is part of: The HUBzero(R) Platform for Scientific Collaboration
- *
- * The HUBzero(R) Platform for Scientific Collaboration (HUBzero) is free
- * software: you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any
- * later version.
- *
- * HUBzero is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * HUBzero is a registered trademark of Purdue University.
- *
- * @package   hubzero-cms
- * @author    Shawn Rice <zooley@purdue.edu>
- * @copyright Copyright 2005-2011 Purdue University. All rights reserved.
- * @license   http://www.gnu.org/licenses/lgpl-3.0.html LGPLv3
- */
 
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
@@ -134,7 +106,7 @@ class WorkflowserviceControllerResults extends \Hubzero\Component\SiteController
 		$this->view->mapped_categories = $category_mapping;
 
 		// allow viewing of hidden category for some users 
-		if (in_array($juser->username, array('admin', 'churas', 'dlee', 'yoyoman')))
+		if (in_array($juser->username, array('admin', 'churas', 'dlee', 'yoyoman', 'wawong')))
 			$this->view->show_hidden_categories = true;
 		else
 			$this->view->show_hidden_categories = false;
@@ -272,7 +244,7 @@ public function previewTask() {
 						$req_file_array[$wf->name] = $counter;
 					}	 
 					
-					$wf_array[$counter] = $wf_split[1];
+					$wf_array[$counter] = $wf_split[1] . "&type=" . urlencode($wf->allowedWorkspaceFileTypes);
 					break;
 
 				case "text":
@@ -375,29 +347,7 @@ public function previewTask() {
 	
 	
 
-	public function crazyTask() {
-	//Array ( ) [baseurl] => [option] => com_cws [task] => launch [controller] => results )
-/// Array ( [option] => com_cws [Itemid] => [task] => launch [period] => 4-wf4 )
-
-		$router =& JSite::getRouter();
-		$var = $router->getVars();
-
-		$seg = explode('-', $var['period']);
-		$workflow = json_decode(file_get_contents(API_DEFAULT . "/rest/workflows/" . $seg[0] . "?userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a"));
-//		$wf2 = file_get_contents("wf2.json");
-//		$workflow = json_decode($wf2);
-
-// Instantiate a new view  
-    //    $view = new JView( array('name'=>'launch') );  
-          
-        // Pass the view any data it may need  
-      //  $view->greeting = 'Hello, World!';  
-          
-       $this->view->workflow = $workflow;
-
-        // Output the HTML  
-        $this->view->display();  	
-	}	
+	
 public function deletejobTask() {
 		$router =& JSite::getRouter();
 		$var = $router->getVars();
@@ -684,7 +634,7 @@ if ($test) {
 				$decoded[$i]->DT_RowId = $decoded[$i]->id . "_" . $decoded[$i]->name;
 				array_push($json, $decoded[$i]);
 			}
-		  echo json_encode($json);
+			echo json_encode($json);
 		} else {
 			echo $files_json;
 		}	
@@ -915,10 +865,10 @@ print_r($results);
 			$rows = $db->loadObjectList();
 		}
 	
-		if ($rows) {
+        if ($rows) {
 			foreach ($rows as $person) {
 				$person->status = 'success';
-				$person->lastVisitDate = UTCtoLocal($person->lastVisitDate);
+                $person->lastVisitDate = UTCtoLocal($person->lastVisitDate);
 				echo json_encode($person);
 				exit;
 			}	
@@ -930,6 +880,7 @@ print_r($results);
 		exit;			
 	}	
 }	
+
 	function registerWorkspaceFile($json) {
 	 	$url = API_DEFAULT . '/rest/workspacefiles?userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a';
 
