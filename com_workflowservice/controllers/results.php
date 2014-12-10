@@ -243,8 +243,18 @@ public function previewTask() {
 //						$schema_array[$wf->name]['required'] = 'true';
 						$req_file_array[$wf->name] = $counter;
 					}	 
+
+					if (is_null($wf->allowedWorkspaceFileTypes)) {
+						$wf_array[$counter] = $wf_split[1];
+					} else {
+						$wf_array[$counter] = $wf_split[1] . "&type=" . urlencode($wf->allowedWorkspaceFileTypes);
+					}
 					
-					$wf_array[$counter] = $wf_split[1] . "&type=" . urlencode($wf->allowedWorkspaceFileTypes);
+					if ($wf->allowFailedWorkspaceFile) {
+						$wf_array[$counter] .= "&isfailed=true";
+					} else {
+						$wf_array[$counter] .= "&isfailed=false";
+					}	
 					break;
 
 				case "text":
@@ -617,7 +627,8 @@ public function deletejobTask() {
 		$params = "rest/workspacefiles?owner=" . $juser->username . "&userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a";
 		if (JRequest::getVar('type')) {
 			$params .= "&type=" . urlencode(JRequest::getVar('type'));
-		}	
+		}
+		$params .= "&isfailed=" . JRequest::getVar('isfailed');
 
 		$files_json = file_get_contents(API_DEFAULT . $params);
 //		$files_json = file_get_contents("workspacefiles.json");
