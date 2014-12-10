@@ -359,7 +359,7 @@ if (stopProcessing) {
 });
 	function formatSize(bytesize) {
 		if (bytesize < 1024) {
-			return "< 1M";
+			return "< 1k";
 		} else {
 			var msize = bytesize/1024/1024;
 			return msize.toFixed(1) + "M";
