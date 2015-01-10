@@ -894,7 +894,12 @@ print_r($results);
 
 		echo '{"status":"error", "reason": "' . $err_msg . '"}';
 		exit;			
-	}	
+	}
+	
+	public function uploaderTask() {
+	// Output the HTML  
+        $this->view->display();	
+	}
 }	
 
 	function registerWorkspaceFile($json) {
@@ -917,14 +922,18 @@ print_r($results);
 	}
 	
 	function UTCtoLocal($local_in_UTC) {
-        date_default_timezone_set("UTC");
+		if ($local_in_UTC == '') {
+			return '';
+		}	
+			
+		if (strlen($local_in_UTC) > 10)
+			$local_in_UTC = floor($local_in_UTC/1000);
 
-        $utc = gmdate("M d Y h:i:s A");
+		$dt = new DateTime("@$local_in_UTC");  // convert UNIX timestamp to PHP DateTime
+		$epoch_time = $dt->format('Y-m-d H:i:s');
 
-        $timezone = "America/Los_Angeles";
-        date_default_timezone_set($timezone);
-
-        $offset = date('Z', strtotime($utc));
-        
-        return date("Y-m-d H:i:s", strtotime($local_in_UTC) + $offset); 	    
+		$TimeZoneNameFrom="UTC";
+		$TimeZoneNameTo="America/Los_Angeles";
+		return date_create($epoch_time, new DateTimeZone($TimeZoneNameFrom))
+				->setTimezone(new DateTimeZone($TimeZoneNameTo))->format("Y-m-d H:i:s");
 	}
