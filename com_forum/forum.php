@@ -28,6 +28,20 @@
  * @license   http://www.gnu.org/licenses/lgpl-3.0.html LGPLv3
  */
 
+// Must be logged in to access forum. If not, redirect to login
+$juser = JFactory::getUser();
+if ((empty($juser->username))) {
+	$redirectUrl = urlencode(base64_encode($_SERVER['REQUEST_URI']));
+	$redirectUrl = '&return='.$redirectUrl;
+	$joomlaLoginUrl = 'index.php?option=com_users&view=login';
+	$finalUrl = $joomlaLoginUrl . $redirectUrl;
+
+	echo "<script type='text/javascript'>alert('You must login to access the forum. Redirecting to login ...');";
+	echo "window.location = '" . $finalUrl . "'";
+	echo "</script>\n";
+	exit;
+}
+
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
 
