@@ -1,46 +1,19 @@
 <?php
-/**
- * HUBzero CMS
- *
- * Copyright 2005-2011 Purdue University. All rights reserved.
- *
- * This file is part of: The HUBzero(R) Platform for Scientific Collaboration
- *
- * The HUBzero(R) Platform for Scientific Collaboration (HUBzero) is free
- * software: you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any
- * later version.
- *
- * HUBzero is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * HUBzero is a registered trademark of Purdue University.
- *
- * @package   hubzero-cms
- * @author    Shawn Rice <zooley@purdue.edu>
- * @copyright Copyright 2005-2011 Purdue University. All rights reserved.
- * @license   http://www.gnu.org/licenses/lgpl-3.0.html LGPLv3
- */
 
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die( 'Restricted access' );
 
-// map css colors to job status
-$error_color['Workspace Sync'] = 'yellow';
-$error_color['Error'] = 'red';
-$error_color['Running'] = 'green';
-$error_color['In Queue'] = 'green';
-$error_color['Pending'] = 'green';
-$error_color['Paused'] = 'orange';
-$error_color['Completed'] = 'black';
-
 ?>
+
+<style type="text/css">
+	.st_WorkspaceSync { background: yellow; padding: 4px; color: #666; }
+	.st_Error { background: red; padding: 4px; color: #ccc;  }
+	.st_Running, st_InQueue, st_Pending { background: green; padding: 4px; }
+	.st_Paused { background: orange; padding: 4px; color: #666; }
+	.st_Completed { }
+</style>	
+
+
 	<header id="content-header">
 		<h2>My Jobs</h2>
 	</header><!-- / #content-header -->
@@ -50,9 +23,77 @@ $error_color['Completed'] = 'black';
 
 <script type="text/javascript" >
 	$(document).ready( function () {
-		$('#jobs').dataTable({
-		 "order": [[ 5, "desc" ]]
-		 });
+		var table = 	$('#jobs').DataTable( {
+				"processing": true,
+				"serverSide": false,
+				"ajax": "/workflowservice/jobsJSON",
+				"columns": [
+					{ "data": "name",
+						"render": function(data,type,row,meta) {
+							var a = '<a href="/workflowservice/jobdetails/' + row.id + '" target="_blank">' + row.name + '</a>'
+							return a;
+						}
+					},
+					{ "data": "id" },
+					{ "data": "workflow_with_version"},
+					{ "data": "owner" },
+					{ "data": "status",
+						"render": function(data,type,row,meta) {
+							switch (row.status) {
+								case "Workspace Sync":
+									var tooltip = "Your job is ready to run, pending synchronization of workspace files";
+									break;
+
+								case "Pending":
+									var tooltip = "Your job is ready to run, pending availability of resources";
+									break;
+
+								case "In Queue":
+									var tooltip = "Your job is in the queue, awaiting completion of your current running or pending job(s). Jobs in this state may also be held by the system and will automatically resume (e.g. jobs are held for system maintenance)";
+									break;
+
+								case "Running":
+									var tooltip = "Your job is running";
+									break;
+
+								case "Error":
+									var tooltip = "Your job has failed due to a detected error";
+									break;
+
+								case "Paused":
+									var tooltip = "Your job has been paused by the system and will automatically resume (e.g. jobs are paused for system maintenance)";
+									break;
+
+								case "Completed":
+									var tooltip = "";
+									break;
+							}		
+									
+							var a = '<span class="st_' + row.status.replace(/\s+/g, '') + '" title="' + tooltip + '">' + row.status + "</span>\n";
+							return a;
+						}
+					},{ "data": "createDate" }
+				],
+			   "columnDefs": [
+					{
+						// The `data` parameter refers to the data for the cell (defined by the
+						// `data` option, which defaults to the column being worked with, in
+						// this case `data: 0`.
+						"render": function ( data, type, row ) {
+							return formatDate(new Date(data - (420 * 60 * 1000)), '%Y-%M-%d %H:%m:%s');
+						},
+						"targets": 5
+					}
+					 
+				],
+				"sort": true,    
+				"order": [[ 5, "desc" ]]
+			});
+					
+		setInterval( function () {
+			table.ajax.reload( null, false ); // user paging is not reset on reload
+			}, 30000 );
+			
 	});
 </script>
 
@@ -65,30 +106,8 @@ $error_color['Completed'] = 'black';
 	echo "<thead>\n";
 	echo "<tr><th>Job Name</th><th>ID</th><th>Workflow Name</th><th>Owner</th><th>Status</th><th>Created</th><th></th></tr>\n";
 	echo "</thead>\n";
-	foreach ($this->tasks as $task) {
-		if (isset($task->workflow->name) ) {
-			$workflow_name = $task->workflow->name;
-			$workflow_version = $task->workflow->version;
-		} else {
-			$workflow_name = 'Unknown';
-			$workflow_version = 'unknown';
-		}	
-
-		echo "<tr>\n";
-		echo "<td><a href='jobDetails/" . $task->id . "' target='_blank'>$task->name</a></td>";
-		echo "<td>$task->id</td>";
-		echo "<td>$workflow_name (version " . $workflow_version. ")</td>";
-		echo "<td>$task->owner</td>";
-		
-		if ($task->status !== 'Completed') 
-			echo "<td><span style='color: white; padding: 3px; background: " . $error_color[$task->status] . "'>$task->status</span></td>";
-		else
-			echo "<td>$task->status</td>";
-			
-		echo "<td>" . gmdate('Y-m-d H:i:s', ($task->createDate/1000)) . "</td>"; // output = 2012-08-15 00:00:00
-		echo '<td><a href="javascript:return(0);"><img src="' . JURI::root(). 'components/com_workflowservice/assets/img/DeleteRed.png" width="12px" class="testthing" data-stateid="' . $task->id . '" id="remove' . $task->id . '"  border="0" /></a></td>' . "\n";
-		echo "</tr>\n";
-	}
+	echo "<tbody>\n";
+	echo "</tbody>\n";
 	echo "</table>\n";
 	echo "</section>\n";
 	
@@ -114,4 +133,32 @@ $(document).on('click', '.testthing', function(e) {
 		error:  function (data) { alert("There was an error when deleting your job. " + stateId);}
 	});
 });
-</script>
+
+function formatDate(date, fmt) {
+		function pad(value) {
+			return (value.toString().length < 2) ? '0' + value : value;
+		}
+		return fmt.replace(/%([a-zA-Z])/g, function (_, fmtCode) {
+			switch (fmtCode) {
+			case 'Y':
+				return date.getUTCFullYear();
+			case 'M':
+				return pad(date.getUTCMonth() + 1);
+			case 'd':
+				return pad(date.getUTCDate());
+			case 'H':
+				return pad(date.getUTCHours());
+			case 'm':
+				return pad(date.getUTCMinutes());
+			case 's':
+				return pad(date.getUTCSeconds());
+			default:
+				throw new Error('Unsupported format code: ' + fmtCode);
+			}
+		});
+	}
+
+function jooo(data) {
+	return data.name;
+}		
+		</script>
