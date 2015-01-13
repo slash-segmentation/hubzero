@@ -736,6 +736,56 @@ public function deletejobTask() {
 
 	}
 
+	public function JobsJSONTask() {
+	/*
+		JFactory::getDocument()->setMimeEncoding( 'application/json' );
+		JResponse::setHeader('Content-Disposition','attachment;filename="progress-report-results.json"');
+		$wf2 = file_get_contents("joblist.json");
+		
+		echo $wf2;
+		exit;
+	*/	
+		
+		$juser = JFactory::getUser();
+
+		$tasks_json = file_get_contents(API_DEFAULT . "/rest/jobs?owner=" . $juser->username . "&userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a&noparams=true&noworkflowparams=true");
+// Output the HTML  
+		JFactory::getDocument()->setMimeEncoding( 'application/json' );
+		JResponse::setHeader('Content-Disposition','attachment;filename="progress-report-results.json"');
+
+		$total = sizeof(json_decode($tasks_json));
+		echo '{
+	  "sEcho": 0,
+	  "recordsTotal": ' . $total . ',
+	  "recordsFiltered": ' . $total . ',
+	  "data":  ';
+		if (isset($_GET['start'])) {
+			$decoded = json_decode($tasks_json);
+			$json = array();
+			for ($i=$_GET['start']; $i<($_GET['start'] + $_GET['length']); $i++) {
+				$decoded[$i]->DT_RowId = $decoded[$i]->id . "_" . $decoded[$i]->name;
+				array_push($json, $decoded[$i]);
+			}
+			echo json_encode($json);
+		} else {
+			$decoded = json_decode($tasks_json);
+			$json = array();
+			foreach ($decoded as $de) {
+				$wf = $de->workflow;
+			
+				$de->workflow_with_version = $wf->name . " (" . $wf->version . ")";
+				array_push($json, $de);
+			}
+			echo json_encode($json);
+		}	
+		echo "}";
+
+		JFactory::getApplication()->close(); // or jexit();
+		
+		echo $tasks_json;
+		exit;
+	}	
+	
 	public function JobDetailsTask() {
 		$router =& JSite::getRouter();
 		$var = $router->getVars();
@@ -934,6 +984,8 @@ print_r($results);
 
 		$TimeZoneNameFrom="UTC";
 		$TimeZoneNameTo="America/Los_Angeles";
+
+
 		return date_create($epoch_time, new DateTimeZone($TimeZoneNameFrom))
 				->setTimezone(new DateTimeZone($TimeZoneNameTo))->format("Y-m-d H:i:s");
 	}
