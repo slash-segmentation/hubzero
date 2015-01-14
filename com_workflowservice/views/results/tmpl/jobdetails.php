@@ -29,6 +29,7 @@ defined('_JEXEC') or die( 'Restricted access' );
   
   <label for="createDate">Create Date</label><?php echo UTCtoLocal($this->task->createDate); ?><br />
   <label for="submitDate">Submit Date</label><?php echo UTCtoLocal($this->task->submitDate); ?><br />
+  <label for="startDate">Start Date</label><?php echo UTCtoLocal($this->task->startDate); ?><br />
   <label for="finishDate">Finish Date</label><?php echo UTCtoLocal($this->task->finishDate); ?><br />
 
   <label for="estimatedCpuInSeconds">Estimated CPU (s)</label><?php echo $this->task->estimatedCpuInSeconds; ?><br />
