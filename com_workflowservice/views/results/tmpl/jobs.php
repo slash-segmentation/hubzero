@@ -13,13 +13,11 @@ defined('_JEXEC') or die( 'Restricted access' );
 	.st_Completed { }
 </style>	
 
-
 	<header id="content-header">
 		<h2>My Jobs</h2>
 	</header><!-- / #content-header -->
 	
 	<section class="main section">
-
 
 <script type="text/javascript" >
 	$(document).ready( function () {
@@ -72,19 +70,8 @@ defined('_JEXEC') or die( 'Restricted access' );
 							var a = '<span class="st_' + row.status.replace(/\s+/g, '') + '" title="' + tooltip + '">' + row.status + "</span>\n";
 							return a;
 						}
-					},{ "data": "createDate" }
-				],
-			   "columnDefs": [
-					{
-						// The `data` parameter refers to the data for the cell (defined by the
-						// `data` option, which defaults to the column being worked with, in
-						// this case `data: 0`.
-						"render": function ( data, type, row ) {
-							return formatDate(new Date(data - (420 * 60 * 1000)), '%Y-%M-%d %H:%m:%s');
-						},
-						"targets": 5
-					}
-					 
+					},
+					{ "data": "formatted_createDate" }
 				],
 				"sort": true,    
 				"order": [[ 5, "desc" ]]
