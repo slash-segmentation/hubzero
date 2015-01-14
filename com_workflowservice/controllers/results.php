@@ -774,6 +774,7 @@ public function deletejobTask() {
 				$wf = $de->workflow;
 			
 				$de->workflow_with_version = $wf->name . " (" . $wf->version . ")";
+				$de->formatted_createDate = UTCtoLocal($de->createDate);
 				array_push($json, $de);
 			}
 			echo json_encode($json);
