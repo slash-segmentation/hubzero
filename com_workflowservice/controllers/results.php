@@ -3,9 +3,15 @@
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
 
-define("API_DEFAULT", "https://crbsworkflow.appspot.com/");
+define("API_DEFAULT", "https://testcrbsworkflow.appspot.com/");
 define("LOGGED_IN_AS", "mikechiu");
-		
+
+//Set to location of Data Tables css and js files	
+define("DATA_TABLES_CSS","/media/DataTables-1.10.1/media/css/jquery.dataTables.css");
+define("DATA_TABLES_JS","/media/DataTables-1.10.1/media/js/jquery.dataTables.js");
+	
+
+
 $router =& JSite::getRouter();
 $var = $router->getVars();
 $check_user = $var['period'];
@@ -106,7 +112,7 @@ class WorkflowserviceControllerResults extends \Hubzero\Component\SiteController
 		$this->view->mapped_categories = $category_mapping;
 
 		// allow viewing of hidden category for some users 
-		if (in_array($juser->username, array('admin', 'churas', 'dlee', 'yoyoman', 'wawong')))
+		if (in_array($juser->username, array('admin', 'churas', 'dlee', 'yoyoman', 'wawong','hodor')))
 			$this->view->show_hidden_categories = true;
 		else
 			$this->view->show_hidden_categories = false;
@@ -169,7 +175,10 @@ public function previewTask() {
 	
 		// get JSON for workflow
 		$seg = explode('-', $var['period']);
-		$workflow = json_decode(file_get_contents(API_DEFAULT . "/rest/workflows/" . $seg[0] . "?userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a"));
+
+    
+		$resultOfQuery = file_get_contents(API_DEFAULT . "/rest/workflows/" . $seg[0] . "?userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a");
+    $workflow = json_decode($resultOfQuery);
 //		$wf2 = file_get_contents("nofilefield.json");
 //		$workflow = json_decode($wf2);
 
@@ -346,8 +355,8 @@ public function previewTask() {
 		$this->view->alpaca_options = substr($str, 0, -1) . "\n";
 
 		$document = JFactory::getDocument();
-		$document->addStyleSheet( "/media/DataTables-1.10.1/css/jquery.dataTables.css" );
-		$document->addScript( "/media/DataTables-1.10.1/js/jquery.dataTables.js" );
+		$document->addStyleSheet( DATA_TABLES_CSS );
+		$document->addScript( DATA_TABLES_JS );
 
 
         // Output the HTML  
@@ -592,8 +601,8 @@ public function deletejobTask() {
 		/*** Show list of workspace files ***/
 	public function WorkspaceFilesTask() {
 		$document = JFactory::getDocument();
-		$document->addStyleSheet( "/media/DataTables-1.10.1/css/jquery.dataTables.css" );
-		$document->addScript( "/media/DataTables-1.10.1/js/jquery.dataTables.js" );
+		$document->addStyleSheet( DATA_TABLES_CSS );
+		$document->addScript( DATA_TABLES_JS );
 
 		$juser = JFactory::getUser();
 	
@@ -609,8 +618,8 @@ public function deletejobTask() {
 	/*** Generates JSON list of workspace files using pagination instructions from DataTables JS library ***/
 	public function WorkspaceFilesJSONTask() {
 		$document = JFactory::getDocument();
-		$document->addStyleSheet( "/media/DataTables-1.10.1/css/jquery.dataTables.css" );
-		$document->addScript( "/media/DataTables-1.10.1/js/jquery.dataTables.js" );
+		$document->addStyleSheet( DATA_TABLES_CSS );
+		$document->addScript( DATA_TABLES_JS );
 
 		$juser = JFactory::getUser();
 
@@ -722,8 +731,8 @@ public function deletejobTask() {
 
 	public function JobsTask() {
 		$document = JFactory::getDocument();
-		$document->addStyleSheet( "/media/DataTables-1.10.1/css/jquery.dataTables.css" );
-		$document->addScript( "/media/DataTables-1.10.1/js/jquery.dataTables.js" );
+		$document->addStyleSheet( DATA_TABLES_CSS );
+		$document->addScript( DATA_TABLES_JS );
 	
 		$juser = JFactory::getUser();
 
@@ -749,8 +758,8 @@ public function deletejobTask() {
 			exit;
 		}
 		$document = JFactory::getDocument();
-		$document->addStyleSheet( "/media/DataTables-1.10.1/css/jquery.dataTables.css" );
-		$document->addScript( "/media/DataTables-1.10.1/js/jquery.dataTables.js" );
+		$document->addStyleSheet(DATA_TABLES_CSS );
+		$document->addScript( DATA_TABLES_JS );
 
 		$task_json = file_get_contents(API_DEFAULT . "/rest/jobs/{$var['period']}?userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a");
 //		$task_json = file_get_contents("jobdetail.json");
