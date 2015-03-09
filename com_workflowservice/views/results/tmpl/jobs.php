@@ -32,7 +32,7 @@
 defined('_JEXEC') or die( 'Restricted access' );
 
 // map css colors to job status
-$error_color['Workspace Sync'] = 'yellow';
+$error_color['Workspace Sync'] = 'gold';
 $error_color['Error'] = 'red';
 $error_color['Running'] = 'green';
 $error_color['In Queue'] = 'green';
