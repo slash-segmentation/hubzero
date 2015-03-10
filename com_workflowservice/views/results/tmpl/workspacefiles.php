@@ -17,19 +17,10 @@ var table = 	$('#example').DataTable( {
             { "data": "type" },
             { "data": "size" },
             { "data": "owner" },
-			{ "data" : "createDate" }
+			{ "data" : "formatted_createDate" }
         ],
        "columnDefs": [
             {
-                // The `data` parameter refers to the data for the cell (defined by the
-                // `data` option, which defaults to the column being worked with, in
-                // this case `data: 0`.
-                "render": function ( data, type, row ) {
-                	return formatDate(new Date(data - (420 * 60 * 1000)), '%Y-%M-%d %H:%m:%s');
-                },
-                "targets": 5
-            },
-			{
 				// The `data` parameter refers to the data for the cell (defined by the
 				// `data` option, which defaults to the column being worked with, in
 				// this case `data: 0`.
@@ -45,7 +36,7 @@ var table = 	$('#example').DataTable( {
 					
 	setInterval( function () {
 		table.ajax.reload( null, false ); // user paging is not reset on reload
-		}, 30000 );
+		}, 3600000 );
 			
     $("#addFile").click(function(){
 		$("#myFile").removeClass("hidden");
