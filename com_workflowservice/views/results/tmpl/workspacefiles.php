@@ -45,7 +45,7 @@ var table = 	$('#example').DataTable( {
 					
 	setInterval( function () {
 		table.ajax.reload( null, false ); // user paging is not reset on reload
-		}, 30000 );
+		}, 216000 );
 			
     $("#addFile").click(function(){
 		$("#myFile").removeClass("hidden");
