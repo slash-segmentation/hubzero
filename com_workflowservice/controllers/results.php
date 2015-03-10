@@ -260,7 +260,7 @@ public function previewTask() {
 					}
 					
 					if ($wf->allowFailedWorkspaceFile) {
-						$wf_array[$counter] .= "&isfailed=true";
+//						$wf_array[$counter] .= "&isfailed=true";
 					} else {
 						$wf_array[$counter] .= "&isfailed=false";
 					}	
