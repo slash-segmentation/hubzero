@@ -5,6 +5,8 @@ defined('_JEXEC') or die('Restricted access');
 
 define("API_DEFAULT", "https://crbsworkflow.appspot.com/");
 define("LOGGED_IN_AS", "mikechiu");
+
+JLog::addLogger(array('text_file' => 'debug.workflowservice.log'));
 		
 $router =& JSite::getRouter();
 $var = $router->getVars();
@@ -106,7 +108,7 @@ class WorkflowserviceControllerResults extends \Hubzero\Component\SiteController
 		$this->view->mapped_categories = $category_mapping;
 
 		// allow viewing of hidden category for some users 
-		if (in_array($juser->username, array('admin', 'churas', 'dlee', 'yoyoman', 'wawong')))
+		if (in_array($juser->username, array('admin', 'churas', 'dlee', 'yoyoman', 'wawong', 'aperez')))
 			$this->view->show_hidden_categories = true;
 		else
 			$this->view->show_hidden_categories = false;
@@ -251,7 +253,7 @@ public function previewTask() {
 					}
 					
 					if ($wf->allowFailedWorkspaceFile) {
-						$wf_array[$counter] .= "&isfailed=true";
+//						$wf_array[$counter] .= "&isfailed=true";
 					} else {
 						$wf_array[$counter] .= "&isfailed=false";
 					}	
@@ -512,6 +514,8 @@ public function deletejobTask() {
 	
 
 	public function processJSONTask() {
+//JLog::add('** Start processJSON **');
+
 		// If user tries to load "process" page with accessing it thru a form submission, send them to workflow listing
 		if (!(isset($_POST['workflowID']))) {
 			echo "<script type='text/javascript'>alert('Invalid form submission. Redirecting to Workflow list ...');";
@@ -574,6 +578,8 @@ public function deletejobTask() {
 
 		$results_json = json_decode($results);
 		
+//        JLog::add('Before returning status of the job submission');
+       
 		if ($results_json->summaryOfErrors) {
 			$err_string = '';
 			$err_html = '';
@@ -648,11 +654,21 @@ public function deletejobTask() {
 			$json = array();
 			for ($i=$_GET['start']; $i<($_GET['start'] + $_GET['length']); $i++) {
 				$decoded[$i]->DT_RowId = $decoded[$i]->id . "_" . $decoded[$i]->name;
+				$decoded[$i]->formatted_createDate = UTCtoLocal($decoded[$i]->createDate);
 				array_push($json, $decoded[$i]);
 			}
 			echo json_encode($json);
 		} else {
-			echo $files_json;
+			$decoded = json_decode($files_json);
+			$json = array();
+			foreach ($decoded as $de) {
+				$wf = $de->workflow;
+			
+				$de->formatted_createDate = UTCtoLocal($de->createDate);
+				array_push($json, $de);
+			}
+
+			echo json_encode($json);
 		}	
 		echo "}";
 
@@ -686,12 +702,23 @@ public function deletejobTask() {
 				$json = array();
 				for ($i=$_GET['start']; $i<($_GET['start'] + $_GET['length']); $i++) {
 					$decoded[$i]->DT_RowId = $decoded[$i]->id . "_" . $decoded[$i]->name;
+					$decoded[$i]->formatted_createDate = UTCtoLocal($decoded[$i]->createDate);
+
 					array_push($json, $decoded[$i]);
 				}
 			  echo json_encode($json);
 			  echo "\n}";
 			} else {
-				echo $files_json;
+				$decoded = json_decode($files_json);
+				$json = array();
+				foreach ($decoded as $de) {
+					$wf = $de->workflow;
+			
+					$de->formatted_createDate = UTCtoLocal($de->createDate);
+					array_push($json, $de);
+				}
+
+				echo json_encode($json);
 				echo "\n}";
 			}
 		} else {
