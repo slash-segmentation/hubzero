@@ -180,7 +180,7 @@ $(document).ready(function() {
 					
 					setInterval( function () {
 						table.ajax.reload( null, false ); // user paging is not reset on reload
-						}, 30000 );
+						}, 216000 );
 				
 					var selected = [];
 					var table = $('#files' + number).DataTable();
