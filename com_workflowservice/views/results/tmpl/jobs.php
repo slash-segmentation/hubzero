@@ -79,7 +79,7 @@ defined('_JEXEC') or die( 'Restricted access' );
 					
 		setInterval( function () {
 			table.ajax.reload( null, false ); // user paging is not reset on reload
-			}, 216000 );
+			}, 3600000 );
 			
 	});
 </script>
