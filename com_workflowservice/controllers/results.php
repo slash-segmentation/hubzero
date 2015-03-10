@@ -745,6 +745,57 @@ public function deletejobTask() {
 
 	}
 
+	public function JobsJSONTask() {
+	/*
+		JFactory::getDocument()->setMimeEncoding( 'application/json' );
+		JResponse::setHeader('Content-Disposition','attachment;filename="progress-report-results.json"');
+		$wf2 = file_get_contents("joblist.json");
+		
+		echo $wf2;
+		exit;
+	*/	
+		
+		$juser = JFactory::getUser();
+
+		$tasks_json = file_get_contents(API_DEFAULT . "/rest/jobs?owner=" . $juser->username . "&userlogin=mikechiu&usertoken=67cecab615914b2494830ef116a4580a&noparams=true&noworkflowparams=true");
+// Output the HTML  
+		JFactory::getDocument()->setMimeEncoding( 'application/json' );
+		JResponse::setHeader('Content-Disposition','attachment;filename="progress-report-results.json"');
+
+		$total = sizeof(json_decode($tasks_json));
+		echo '{
+	  "sEcho": 0,
+	  "recordsTotal": ' . $total . ',
+	  "recordsFiltered": ' . $total . ',
+	  "data":  ';
+		if (isset($_GET['start'])) {
+			$decoded = json_decode($tasks_json);
+			$json = array();
+			for ($i=$_GET['start']; $i<($_GET['start'] + $_GET['length']); $i++) {
+				$decoded[$i]->DT_RowId = $decoded[$i]->id . "_" . $decoded[$i]->name;
+				array_push($json, $decoded[$i]);
+			}
+			echo json_encode($json);
+		} else {
+			$decoded = json_decode($tasks_json);
+			$json = array();
+			foreach ($decoded as $de) {
+				$wf = $de->workflow;
+			
+				$de->workflow_with_version = $wf->name . " (" . $wf->version . ")";
+				$de->formatted_createDate = UTCtoLocal($de->createDate);
+				array_push($json, $de);
+			}
+			echo json_encode($json);
+		}	
+		echo "}";
+
+		JFactory::getApplication()->close(); // or jexit();
+		
+		echo $tasks_json;
+		exit;
+	}	
+	
 	public function JobDetailsTask() {
 		$router =& JSite::getRouter();
 		$var = $router->getVars();
@@ -903,7 +954,12 @@ print_r($results);
 
 		echo '{"status":"error", "reason": "' . $err_msg . '"}';
 		exit;			
-	}	
+	}
+	
+	public function uploaderTask() {
+	// Output the HTML  
+        $this->view->display();	
+	}
 }	
 
 	function registerWorkspaceFile($json) {
@@ -926,14 +982,20 @@ print_r($results);
 	}
 	
 	function UTCtoLocal($local_in_UTC) {
-        date_default_timezone_set("UTC");
+		if ($local_in_UTC == '') {
+			return '';
+		}	
+			
+		if (strlen($local_in_UTC) > 10)
+			$local_in_UTC = floor($local_in_UTC/1000);
 
-        $utc = gmdate("M d Y h:i:s A");
+		$dt = new DateTime("@$local_in_UTC");  // convert UNIX timestamp to PHP DateTime
+		$epoch_time = $dt->format('Y-m-d H:i:s');
 
-        $timezone = "America/Los_Angeles";
-        date_default_timezone_set($timezone);
+		$TimeZoneNameFrom="UTC";
+		$TimeZoneNameTo="America/Los_Angeles";
 
-        $offset = date('Z', strtotime($utc));
-        
-        return date("Y-m-d H:i:s", strtotime($local_in_UTC) + $offset); 	    
+
+		return date_create($epoch_time, new DateTimeZone($TimeZoneNameFrom))
+				->setTimezone(new DateTimeZone($TimeZoneNameTo))->format("Y-m-d H:i:s");
 	}

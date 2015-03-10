@@ -7,7 +7,7 @@ defined('_JEXEC') or die( 'Restricted access' );
 
 <script type="text/javascript">
 $(document).ready(function() {
-    $('#example').dataTable( {
+var table = 	$('#example').DataTable( {
         "processing": true,
         "serverSide": false,
         "ajax": "WorkspaceFilesJSON",
@@ -40,10 +40,13 @@ $(document).ready(function() {
 			}            
         ],
 		"sort": true,    
-        "order": [[ 5, "desc" ]]
-        
-    } );
-    
+		"order": [[ 5, "desc" ]]
+	});
+					
+	setInterval( function () {
+		table.ajax.reload( null, false ); // user paging is not reset on reload
+		}, 30000 );
+			
     $("#addFile").click(function(){
 		$("#myFile").removeClass("hidden");
 	});
