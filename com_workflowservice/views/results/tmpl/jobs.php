@@ -6,10 +6,10 @@ defined('_JEXEC') or die( 'Restricted access' );
 ?>
 
 <style type="text/css">
-	.st_WorkspaceSync { background: yellow; padding: 4px; color: #666; }
-	.st_Error { background: red; padding: 4px; color: #ccc;  }
-	.st_Running, st_InQueue, st_Pending { background: green; padding: 4px; }
-	.st_Paused { background: orange; padding: 4px; color: #666; }
+	.st_WorkspaceSync { background: yellow; padding: 4px; color: #666; font-weight: bold; }
+	.st_Error { background: red; padding: 4px; color: #ccc; font-weight: bold; }
+	.st_Running, st_InQueue, st_Pending { background: green; padding: 4px; color: #fff; font-weight: bold; }
+	.st_Paused { background: orange; padding: 4px; color: #666; font-weight: bold; }
 	.st_Completed { }
 </style>	
 
