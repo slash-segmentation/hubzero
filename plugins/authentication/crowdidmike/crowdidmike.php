@@ -65,13 +65,13 @@ class plgAuthenticationCrowdidmike extends JPlugin
     public function login(&$credentials, &$options) {
         JLog::add('AUTHTESTEcrowdidmike 0.01 Start Crowdidmike logging');
 
-		if (isset($_POST['idURL'])) {
+		if (isset($_POST['userid'])) {
 			$juri    = JURI::getInstance();
 			$service = trim($juri->base(), DS);
 
-			$providerData = getProviderData();
-			$authUrl = $_POST['idURL'];
-
+			$providerData = getProviderData($this->params->get('providerUrl'));
+			$authUrl = $this->params->get('idUrl') . $_POST['userid'];
+        JLog::add('authurl = ' . $authUrl);
 
 			// Where the user should land after authentication 
 			//(should be in the same domain as $domain)
@@ -92,20 +92,11 @@ class plgAuthenticationCrowdidmike extends JPlugin
 			*/
 
 	  $_SESSION['openid.authUrl']  = $authUrl;
-	  $_SESSION['openid.idUrl'] = $_POST['idURL'];
+	  $_SESSION['openid.idUrl'] = $this->params->get('idUrl') . $_POST['userid'];
 	  $_SESSION['openid.confirmed'] = false;
 
-	///////////////
-	//
-	//
-	//    WARNING HARD CODED VALUE
-	//
-	//
-	//    $providerURL = 'https://openid.crbs.ucsd.edu/openidserver/server.openid';
-		$providerURL = 'https://carlin.crbs.ucsd.edu/openidserver/server.openid';
-	///////////////
 
-	  $providerURL = 'https://carlin.crbs.ucsd.edu/openidserver/server.openid';
+	$providerURL = $this->params->get('providerUrl');
 	  $location = $providerURL . '?openid.mode=checkid_setup';
 	  $location .= '&openid.assoc_handle=shared1';
 	  $location .= '&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0'; 
@@ -152,6 +143,8 @@ class plgAuthenticationCrowdidmike extends JPlugin
 			$_SESSION['openid.fullname'] = $var['openid_ext1_fullname'];
 			$_SESSION['openid.username'] = $dbresult->username;
 
+
+/******** NEED TO CHANGE 'emailConfirmed' to 1 instead of the -randomvalue in jos_xprofiles table ***/
 			return $response;
 		} elseif (isset($var['openid_ext1_nickname'])) {
 			JLog::add('creating new user ' . $var['openid_ext1_nickname']);
@@ -172,6 +165,22 @@ class plgAuthenticationCrowdidmike extends JPlugin
                         $response->username = $var['openid_ext1_nickname'];
                         $response->error_message = '';
                         $response->id = $id;
+
+			/* set the emailConfirmation flag */
+			// Load the profile
+			$profile = new \Hubzero\User\Profile();
+			$profile->load($id);
+
+			$profile->set('emailConfirmed', 1);
+
+			// Save the changes
+			if (!$profile->update())
+			{
+				JError::raiseWarning('', $profile->getError());
+				return false;
+			}
+		
+					
 
 			JLog::add(' Before returning the fatal response');
 JLog::add('Here is the data before fatal response' . var_export($response, true));
@@ -215,10 +224,11 @@ echo '
 					<input type="hidden" name="authenticator" value="crowdidmike" />
 					<input type="hidden" name="task" value="user.login" />
 					<div class="input-wrap">
-						<input type="text" name="idURL" value="http://carlin.crbs.ucsd.edu/openidserver/users/michiu" size="80" />
+						<input type="text" name="userid" value="" size="80" />
 					</div>
 					<div class="submission">
-						<input type="submit" value="Log in" class="login-submit btn btn-primary" />
+						<input type="hidden" />
+						<input type="submit" value="Log in" class="btn btn-primary" />
 					</div>
 
 			</div>
@@ -333,26 +343,16 @@ echo "about to exit from onUserAuthenticate";
 }
 
 
-function getProviderData() {
+function getProviderData($providerUrl) {
 
     // This sends an associate requests, which should return the provider secret
     return doPostRequest(array(
         'openid.mode' => 'associate'
-    ));
+    ), $providerUrl);
 
 }
 
-function doPostRequest($vars) {
-///////////////
-//
-//
-//    WARNING HARD CODED VALUE
-//
-//
-//    $providerURL = 'https://openid.crbs.ucsd.edu/openidserver/server.openid';
-    $providerURL = 'https://carlin.crbs.ucsd.edu/openidserver/server.openid';
-///////////////
-
+function doPostRequest($vars, $providerUrl) {
     $r = \Httpful\Request::post ($providerURL);
     $vars2 = array();
     foreach($vars as $k=>$v) $vars2[] = $k.'=' . urlencode($v);
