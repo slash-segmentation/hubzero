@@ -11,7 +11,7 @@ define("DATA_TABLES_CSS","/media/DataTables-1.10.1/media/css/jquery.dataTables.c
 define("DATA_TABLES_JS","/media/DataTables-1.10.1/media/js/jquery.dataTables.js");
 
 JLog::addLogger(array('text_file' => 'debug.workflowservice.log'));
-		
+
 $router =& JSite::getRouter();
 $var = $router->getVars();
 $check_user = $var['period'];
