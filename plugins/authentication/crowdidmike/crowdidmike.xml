@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="authentication">
+    <name>Authentication - Crowdidmike</name>
+    <author>Joomla! Documentation Project</author>
+    <creationDate>Jan 11, 2014</creationDate>
+    <copyright>Public domain.</copyright>
+    <license>Use on your own risk!</license>
+    <authorEmail>vrowley@ucsd.edu</authorEmail>
+    <version>2.0</version>
+    <description>A crowdidmike authentication plugin</description>
+    <files>
+        <filename plugin="crowdidmike">crowdidmike.php</filename>
+    </files>
+    <config>
+        <fields name="params">
+            <fieldset name="basic">
+                <field name="crowdidmike_url" type="text"
+                       description="Something like https://crowd.blah.com/crowd/rest/usermanagement/1/"
+                       label="Crowd server url"
+                       size="40"
+                 />
+                <field name="crowdidmike_app_name" type="text"
+                       description="Registered name of this application"
+                       label="Application name"
+                       size="40"
+                 />
+                <field name="crowdidmike_app_password" type="password"
+                       description="Application password at crowd server"
+                       label="Application password"
+                       size="40"
+                 />
+                <field name="crowdidmike_cookie_domain" type="text"
+                       description="Supply an alternate domain which the cookie should be stored under."
+		       label="Alternate cookie domain"
+                       size="40"
+                 /> 
+                <field name="crowdidmike_group_map" type="textarea"
+                       description="Group mapping like A:X;B:Y crowd A becomes joomla X, X is int"
+                       label="Group mapping"
+                       cols="40" rows="10"
+                 />
+            </fieldset>
+        </fields>
+    </config>
+</extension>
