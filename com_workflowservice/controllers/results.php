@@ -962,7 +962,7 @@ print_r($results);
         if ($rows) {
 			foreach ($rows as $person) {
 				$person->status = 'success';
-                $person->lastVisitDate = UTCtoLocal($person->lastVisitDate);
+				$person->lastVisitDate = UTCtoLocal(strtotime($person->lastVisitDate . " GMT"));
 				echo json_encode($person);
 				exit;
 			}	
