@@ -325,14 +325,33 @@ if (stopProcessing) {
 		});				
 						
 });
+
 	function formatSize(bytesize) {
+		var msize = bytesize/1024/1024;
+
+		if (msize < 1) {
+			return msize.toFixed(4) + "M";
+		} else if (msize < 10) {	
+			return msize.toFixed(3) + "M";
+		} else if (msize < 100) {	
+			return msize.toFixed(2) + "M";
+		} else if (msize < 1000) {	
+			return msize.toFixed(1) + "M";
+		} else {	
+			return msize.toFixed(0) + "M";
+		}	
+	
+		/*
+		Old code in case the numerical sort doesn't matter as much; looks nicer
 		if (bytesize < 1024) {
 			return "< 1k";
 		} else {
 			var msize = bytesize/1024/1024;
-			return msize.toFixed(1) + "M";
+			return msize.toFixed(2) + "M";
 		}
+		*/
 	}
+
 	function formatDate(date, fmt) {
 		function pad(value) {
 			return (value.toString().length < 2) ? '0' + value : value;
