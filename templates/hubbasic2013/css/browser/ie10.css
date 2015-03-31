@@ -1,0 +1,12 @@
+/*
+	-- -- -- -- -- -- --
+	hubbasic CSS
+	IE 9 Windows hacks
+	-- -- -- -- -- -- --
+*/
+input[type=text],
+input[type=password],
+input[type=email],
+textarea {
+	line-height: 1;
+}
