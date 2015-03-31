@@ -217,8 +217,10 @@ echo '
 		<div class="person"></div>
 		<div class="default"></div>
 			<div class="hz" style="display: block">
-				<div class="instructions">Enter your CRBS CROWD username:</div>
-
+				<div class="instructions">Enter your CRBS CROWD username:
+					<div style="font-size: .8em">(just the username and not the full URL)</div>
+				</div>
+								
 					<form method="post" action="' . $service . '/login">
 					<input type="hidden" name="option" value="com_users" />
 					<input type="hidden" name="authenticator" value="crowdidmike" />
