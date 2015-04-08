@@ -30,6 +30,7 @@ defined('_JEXEC') or die( 'Restricted access' );
 		<div id="boxo">
 			<div id="lefto">
 				<div><?php echo nl2br($this->workflow_description); ?></div>
+				<div><p>Read <a href="/wiki/<?php echo str_replace(" ", "", $this->workflow_name); ?>" target="_blank">documentation</a></p></div>
 
 				<form name="myform" id="myform">
 
