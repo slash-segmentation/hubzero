@@ -1024,3 +1024,13 @@ print_r($results);
 		return date_create($epoch_time, new DateTimeZone($TimeZoneNameFrom))
 				->setTimezone(new DateTimeZone($TimeZoneNameTo))->format("Y-m-d H:i:s");
 	}
+
+	function checkWikiExistance($title) {
+		$database = JFactory::getDBO();
+		$query = "SELECT id FROM `#__wiki_page` WHERE title='". $title . "' AND scope='' ORDER BY state ASC LIMIT 1";
+		$database->setQuery($query);
+		if ($database->loadResult()) 
+			return false;
+		else
+			return true;	
+	}
