@@ -75,7 +75,11 @@ ul, li {list-style: none outside none; }
 						// loop through workflow list and only show the workflow with the max version number
 						foreach ($this->workflows as $wf) {
 							if (($wf->name == $categorized_wf) && ($wf->name == $wf_name) && ($wf->version == max(array_keys($workflows[$wf_name])))) {
-								echo '<li class="wfNames" id="' . $wf->id . '"><a href="workflowservice/launch/' . $wf->id . '-' . str_replace(" " , "", urlencode($wf->name)) . '">' . $wf->name . " (ver " . $wf->version . ")</a></li>\n";
+								if ($this->allow_processing)
+									echo '<li class="wfNames" id="' . $wf->id . '"><a href="workflowservice/launch/' . $wf->id . '-' . str_replace(" " , "", urlencode($wf->name)) . '">' . $wf->name . " (ver " . $wf->version . ")</a></li>\n";
+								else
+									echo '<li class="wfNames" id="' . $wf->id . '"><a name="#">' . $wf->name . " (ver " . $wf->version . ")</a></li>\n";
+
 								$all_descriptions .= '<div id="description_' . $wf->id . '" style="display: none">' . nl2br($wf->description) . '</div>' . "\n";
 							}
 						}

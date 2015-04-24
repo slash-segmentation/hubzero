@@ -108,6 +108,9 @@ class WorkflowserviceControllerResults extends \Hubzero\Component\SiteController
 		else
 			$this->view->show_hidden_categories = false;
 
+		$params = &JComponentHelper::getParams( 'com_workflowservice' );
+		$this->view->allow_processing = $params->get('allow_processing');
+
 		// Output HTML
 		if ($this->getError()) {
 			foreach ($this->getErrors() as $error) {
