@@ -36,8 +36,6 @@ defined('_JEXEC') or die( 'Restricted access' );
 					}
 				?>	
 
-				<form name="myform" id="myform">
-
 				<div id="form"></div>
 				<?php
 				if (isset($this->alpaca_adv_id)) { ?>
@@ -102,11 +100,12 @@ $(document).ready(function() {
             },
 			<?php echo $this->alpaca_options; ?>
 		},
-		
-		"postRender": function(renderedField) {
-		// helper text won't wrap, so convert span to div and add the .minHelperText
+		"postRender": function(renderedForm) {
+
+			// helper text won't wrap, so convert span to div and add the .minHelperText
 			$(".alpaca-controlfield-helper span").replaceWith(function() { return "<div class='minHelperText'>" + this.innerHTML + "</div>"; });
 
+			// TURN FILE UPLOAD INTO WORKSPACE FILES DATATABLE
 			var skipwf;
 			$.each(wf_array, function(number, val) {
 				// get JSON list of wf files for the specified file field
@@ -139,7 +138,6 @@ $(document).ready(function() {
 						$("#selectfile" + number).hide();
 						$("#apply" + number).show();
 						$("#fileID" + number).hide();
-
 					}); 
 
 					var table = $('#files' + number).dataTable( {
@@ -172,8 +170,9 @@ $(document).ready(function() {
 								$(row).addClass('selected');
 							}
 						}
-					});
+					}); // end dataTable
 					
+					// page reload time for workspace files
 					setInterval( function () {
 						table.ajax.reload( null, false ); // user paging is not reset on reload
 						}, 3600000 );
@@ -189,8 +188,6 @@ $(document).ready(function() {
 						else {
 							table.$('tr.selected').removeClass('selected');
 							$(this).addClass('selected');
-	//						 $("#showfileID" + number).html(this.id) ;
-	//						 var passID = this.id;
 
 							var tableData = $(this).children("td").map(function() {
 								return $(this).text();
@@ -204,8 +201,8 @@ $(document).ready(function() {
 									 $("#alpaca" + number).val(tableData[1]);
 								}
 							});	
-						}
-					} );
+						} // else
+					}); //function
  
 					$('#button' + number).click( function () {
 						table.row('.selected').remove().draw( false );
@@ -225,12 +222,11 @@ $(document).ready(function() {
 						$("#selectfile" + number).hide();
 							$("#apply" + number).show();
 						}); // Add a click handler
-				
-									
-				}	
-			});
-
-			if (!(jQuery.isEmptyObject(alpaca_adv_ids))) {
+						
+				} //else				
+			}); // each		
+		
+		if (!(jQuery.isEmptyObject(alpaca_adv_ids))) {
 			// if advanced parameters, move the #advanced block to below Submit button
 			// {"Stage":7,"Level":8,"createCHMTrainJob":10};
 				// handle display of advanced parameters
@@ -254,82 +250,58 @@ $(document).ready(function() {
 		
 		
 		
-
-
-
-            var form = renderedField.form;
-            if (form) {
-                form.registerSubmitHandler(function(e, form) {
-                    // validate the entire form (top control + all children)
-                    form.validate(true);
-                    // draw the validation state (top control + all children)
-                    form.refreshValidationState(true);
-                    // now display something
-
-                    if (form.isFormValid()) {
-                        var value = form.getValue();
-                    } else {
-
-                        alert("There are problems with the form.  Please make the any necessary corrections.");
-                    }
-                    e.stopPropagation();
-                    return false;
-                });
-            }
-        }
-
-		
-		, // close postRender function
-        "view": "VIEW_WEB_EDIT"
-    });  // close of alpaca form
-
-
-						
-		
-		$("#alpaca2").submit(function(e)
-		{
 		
 		
+			// SUBMIT FORM CODE
+				$('#alpaca2').submit(function(e) {
 
-                   		obj = jQuery.parseJSON(' <?php echo $this->alpaca_req_file_array; ?> ');
-                   		var stopProcessing = false;
-						$.each (obj, function(a, b) {
-							if (!($("#alpaca" + b).val().length)) {
+					// REQUIRE A FILE CODE
+					obj = jQuery.parseJSON(' <?php echo $this->alpaca_req_file_array; ?> ');
+					var stopProcessing = false;
+					$.each (obj, function(a, b) {
+						if (!(  $("#alpaca" + b).val().length)) {
+							if (!(stopProcessing)) {
 								alert ("You must select a file");
 								stopProcessing = true;
-							}
-						});
+								e.preventDefault(); //STOP default action
+							}	
+						}
+					});
+					// END REQUIRE A FILE CODE
 
-if (stopProcessing) {
-	e.preventDefault();	//STOP default action
+					if (!(stopProcessing)) {
+						var postData = $(this).serializeArray();
+						var formURL = $(this).attr("action");
 
-} else {
- myVar = setTimeout(console.log('wait before submit'), 500);
-			var postData = $(this).serializeArray();
-			var formURL = $(this).attr("action");
-			$.ajax(
-			{
-				url : formURL,
-				type: "POST",
-				data : postData,
-				success:function(data, textStatus, jqXHR) {
-					var obj = jQuery.parseJSON( data );
-					if (obj.status === "success") {
-						$( location ).attr("href", "/workflowservice/jobs");
-					} else {
-						obj.reason = obj.reason.replace(/<br \/>/g, "\n");
-						alert("There was an error with your job submission: \n" + obj.reason.replace(/&quot;/g,'"'))
-					}	
-				},
-				error: function(jqXHR, textStatus, errorThrown) 
-				{
-				}
-			});
-			e.preventDefault();	//STOP default action
-	}		
-		});				
-						
-});
+						if (renderedForm.isValid(true)) {
+							var val = renderedForm.getValue();
+							$.ajax({
+								type: "POST",
+								url: formURL,
+								data: postData,
+								success:function(data, textStatus, jqXHR) {
+									var obj = jQuery.parseJSON( data );
+									if (obj.status === "success") {
+										$( location ).attr("href", "/workflowservice/jobs");
+									} else {
+										obj.reason = obj.reason.replace(/<br \/>/g, "\n");
+										alert("There was an error with your job submission: \n" + obj.reason.replace(/&quot;/g,'"'))
+									}	
+								},
+								error: function(jqXHR, textStatus, errorThrown) 
+									{ 
+							
+									}						
+							}); //ajax
+							e.preventDefault(); //STOP default action
+
+						} //if
+					} // if	
+				});
+			// END SUBMIT FORM CODE	
+		} //postrender
+	});  // close of alpaca form
+}); //ready
 
 	function formatSize(bytesize) {
 		var msize = bytesize/1024/1024;

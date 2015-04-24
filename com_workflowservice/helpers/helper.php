@@ -34,7 +34,7 @@ defined('_JEXEC') or die('Restricted access');
 /**
  * Usage helper class
  */
-class CwsHelper
+class WorkflowserviceHelper
 {
 	/**
 	 * Return a usage database object
@@ -49,18 +49,19 @@ class CwsHelper
 		if(isset($params['method'])) { $this->_method = $params['method']; } else { $this->_method = "GET"; }
 		if(isset($params['data'])) { $this->_data = $params['data']; } else { $this->_data = ""; }
 		if(isset($params['url'])) { $this->_api = $params['url']; } else { $this->_api = API_DEFAULT; }
+		if(isset($params['header'])) { $this->_header = $params['header']; } else { $this->_header = ""; }
 		
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $this->_api.$this->_access);
-		
+
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		
+
 		switch ($this->_method) {
-   
 	    	case "POST":
 	        	curl_setopt($ch, CURLOPT_POST, 1);
 	        	curl_setopt($ch, CURLOPT_POSTFIELDS, $this->_data);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $this->_header);
 	        	break;
 	    	case "PUT":
 	        	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
@@ -75,6 +76,8 @@ class CwsHelper
 	        	break;	        
 		}
 		
+		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+		curl_setopt($ch, CURLOPT_USERPWD, $params['userpass']);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 		$res = curl_exec($ch);
 		curl_close($ch);
