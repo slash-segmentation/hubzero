@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="2.5" method="upgrade">
+	<name>CRBS Workflow Service - Slash</name>
+	<author>Joomla! Project</author>
+	<copyright>(C) 2005 - 2008 Open Source Matters. All rights reserved.
+	</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html
+		GNU/GPL</license>
+	<authorEmail>admin@joomla.org</authorEmail>
+	<authorUrl>www.joomla.org</authorUrl>
+	<version>2.5.0</version>
+	<description>COM_WORKFLOWSERVICE_XML_DESCRIPTION</description>
+	<administration>
+		<files folder="admin">
+			<filename>workflowservice.php</filename>
+			<filename>config.xml</filename>
+			<filename>controller.php</filename>
+			<filename>index.html</filename>
+			<folder>views</folder>
+		</files>
+		<languages folder="admin">
+			<language tag="en-GB">language/en-GB.com_workflowservice.ini
+			</language>
+		</languages>
+	</administration>
+</extension>

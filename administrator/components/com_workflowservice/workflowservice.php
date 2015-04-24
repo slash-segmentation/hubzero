@@ -23,7 +23,7 @@
  * HUBzero is a registered trademark of Purdue University.
  *
  * @package   hubzero-cms
- * @author    Shawn Rice <zooley@purdue.edu>
+ * @author    Alissa Nedossekina <alisa@purdue.edu>
  * @copyright Copyright 2005-2011 Purdue University. All rights reserved.
  * @license   http://www.gnu.org/licenses/lgpl-3.0.html LGPLv3
  */
@@ -31,27 +31,33 @@
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die( 'Restricted access' );
 
+$option = 'com_workflowservice';
 
-if (!$this->no_html) { ?>
-<div id="content-header" class="full">
-	<h2>Workspace Files</h2>
-</div><!-- / #content-header -->
+if (!JFactory::getUser()->authorise('core.manage', $option))
+{
+	return JError::raiseWarning(404, JText::_('JERROR_ALERTNOAUTHOR'));
+}
 
-<?php }
+//require_once(JPATH_COMPONENT_SITE . DS . 'helpers' . DS . 'economy.php');
+require_once(JPATH_COMPONENT_SITE . DS . 'models' . DS . 'category.php');
+require_once(JPATH_COMPONENT_ADMINISTRATOR . DS . 'helpers' . DS . 'workflowservice.php');
 
-	echo "<table border='1' cellpadding='1' cellspacing='0'>\n";
-	echo "<thead>\n";
-	echo "<tr><th>Name</th><th>ID</th><th>Type</th><th>Size</th><th>description</th><th>Created</th></tr>\n";
-	echo "</thead>\n";
-	foreach ($this->files as $file) {
-		echo "<tr>\n";
-		echo "<td><a href='downloadWorkspaceFile/" . $file->id . "' target='_blank'>$file->name</a></td>";
-		echo "<td>$file->id</td>";
-		echo "<td>$file->type</td>";
-		echo "<td>$file->size</td>";
-		echo "<td>$file->description</td>";
-		echo "<td>" . gmdate('Y-m-d H:i:s', ($file->createDate/1000)) . "</td>"; // output = 2012-08-15 00:00:00
-		echo "</tr>\n";
-	}
-	echo "</table>\n";
-?>
+$controllerName = JRequest::getCmd('controller', 'categories');
+if (!file_exists(JPATH_COMPONENT_ADMINISTRATOR . DS . 'controllers' . DS . $controllerName . '.php'))
+{
+	$controllerName = 'categories';
+}
+
+JSubMenuHelper::addEntry(
+	JText::_('Workflow Categories'),
+	'index.php?option=' . $option,
+	($controllerName == 'categories')
+);
+
+require_once(JPATH_COMPONENT_ADMINISTRATOR . DS . 'controllers' . DS . $controllerName . '.php');
+$controllerName = 'WorkflowserviceController' . ucfirst($controllerName);
+
+// initiate controller
+$controller = new $controllerName();
+$controller->execute();
+$controller->redirect();

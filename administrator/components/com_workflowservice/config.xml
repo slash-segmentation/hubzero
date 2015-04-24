@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<fieldset name="basic">
+		<field 
+				name="restURL" 
+				type="text" 
+				menu="hide" 
+				default="https://testcrbsworkflow.appspot.com/" 
+				label="rest URL" 
+				description="rest URL" 
+				size="50" />
+
+		<field 
+				name="authentication" 
+				type="text" 
+				menu="hide" 
+				default="user:pass" 
+				label="authentication" 
+				description="user:pass" 
+				size="50" />
+
+		<field 
+				name="allow_processing" 
+				type="radio" 
+				menu="hide" 
+				default="1" 
+				label="allow processing?"
+				description="">
+			<option value="0">No</option>
+			<option value="1">Yes</option>
+		</field>					
+
+		<field 
+				name="see_hidden" 
+				type="text" 
+				menu="hide" 
+				default="admin, michiu, churas" 
+				label="hidden category users" 
+				description="who can see hidden category" 
+				size="50" />
+
+	</fieldset>
+	
+</config>
