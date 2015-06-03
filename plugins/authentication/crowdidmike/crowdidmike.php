@@ -14,7 +14,7 @@ jimport('joomla.plugin.plugin');
 jimport('joomla.event.plugin');
 jimport('joomla.error.log');
 
-include_once "/Users/mchiu/sites/example130/libraries/httpful.phar";
+include_once getcwd() . "/libraries/httpful.phar";
 
 class plgAuthenticationCrowdidmike extends JPlugin
 {
@@ -172,6 +172,7 @@ class plgAuthenticationCrowdidmike extends JPlugin
 			$profile->load($id);
 
 			$profile->set('emailConfirmed', 1);
+			$profile->set('public', 0);
 
 			// Save the changes
 			if (!$profile->update())
@@ -180,7 +181,30 @@ class plgAuthenticationCrowdidmike extends JPlugin
 				return false;
 			}
 		
-					
+			/* Automate setting user as "Registered */
+			// Get required system objects
+			$user = clone(JFactory::getUser());
+
+			// Initialize new usertype setting
+			$usersConfig = JComponentHelper::getParams('com_users');
+			$newUsertype = $usersConfig->get('new_usertype');
+			if (!$newUsertype)
+			{
+				$db = JFactory::getDbo();
+				$query = $db->getQuery(true)
+					->select('id')
+					->from('#__usergroups')
+					->where('title = "Registered"');
+				$db->setQuery($query);
+				$newUsertype = $db->loadResult();
+			}
+
+			// Set some initial user values
+			$user->set('id', 0);
+			$user->set('groups', array($newUsertype));
+
+			$user->save();
+			/* Data should show up in __user_usergroup_map table */
 
 			JLog::add(' Before returning the fatal response');
 JLog::add('Here is the data before fatal response' . var_export($response, true));
