@@ -11,5 +11,6 @@ Requirements
 
 * DataTables (http://www.datatables.net) version 1.10.1 (http://datatables.net/releases/DataTables-1.10.1.zip)
 
-The main work is the CRBS Workflow Service, which has been written as a Joomla component. The Com_workflowservice folder should be installed in the hubzero "components" directory. You will need to use the Extension Manager to "discover" the new component. It helps to first "purge cache" before trying the "discover". There isn't an "admin" section to the component, so it will give an error, but it doesn't affect things ...
+The main work is the CRBS Workflow Service, which has been written as a Joomla component. The original component did not have an administrative component. It's best to use the Extension Manager to uninstall the component before proceeding with installating the latest version.
 
+To install the current version, first download the "com_workflowservice_installer.zip" file. Then, use the Extension Manager :: Install to upload the package file, which is the zip you just downloaded. Click "Upload & Install", and it should take care of the rest. Once installed, you should go to the new Components::CRBS Workflow Service menu and configure the component. The URL might work as is, but you will for sure need to change the username:password. Once it's configured, you will need to add workflow categories and use the admin tool to select what workflows belong in each category.
