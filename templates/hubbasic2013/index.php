@@ -134,7 +134,8 @@ $this->setTitle($config->getValue('config.sitename') . ' - ' . $this->getTitle()
 									$usersConfig = JComponentHelper::getParams('com_users');
 									if ($usersConfig->get('allowUserRegistration') != '0') : ?>
 										<li id="account-register">
-											<a href="<?php echo JRoute::_('index.php?option=com_register'); ?>" title="<?php echo JText::_('TPL_HUBBASIC_SIGN_UP'); ?>"><?php echo JText::_('TPL_HUBBASIC_REGISTER'); ?></a>
+											<?php /*<a href="<?php echo JRoute::_('index.php?option=com_register'); ?>" title="<?php echo JText::_('TPL_HUBBASIC_SIGN_UP'); ?>"><?php echo JText::_('TPL_HUBBASIC_REGISTER'); ?></a>*/?>
+											<a href="http://ncmir.ucsd.edu/collaborator/application-UserInfo.php" target="_blank" title="<?php echo JText::_('TPL_HUBBASIC_SIGN_UP'); ?>"><?php echo JText::_('TPL_HUBBASIC_REGISTER'); ?></a>
 										</li>
 									<?php endif; ?>
 								</ul>

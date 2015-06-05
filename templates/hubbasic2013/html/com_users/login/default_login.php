@@ -84,7 +84,7 @@ endforeach;
 			<?php endif; ?>
 		</div>
 		<div class="default" style="display:<?php echo ($primary || count($this->authenticators) == 0) ? 'none' : 'block'; ?>;">
-			<div class="instructions"></div>
+			<div class="instructions"><?php echo JText::_('Choose your sign in method:'); ?></div>
 			<div class="options">
 				<?php foreach ($this->authenticators as $a) : ?>
 						<?php 
@@ -93,12 +93,16 @@ endforeach;
 							else:
 						?>
 							<a class="<?php echo $a['name']; ?> account" href="<?php echo JRoute::_('index.php?option=com_users&view=login&authenticator=' . $a['name'] . $this->returnQueryString); ?>">
-								<div class="signin">Sign in with CROWD (openID)</div>
-								(just the username and not the full URL)
-								
+								<div class="signin"><?php echo JText::sprintf('Sign in with %s', $a['display']); ?></div>
 							</a>
 						<?php endif; ?>
 				<?php endforeach; ?>
+			</div>
+			<div class="or"></div>
+			<div class="local">
+				<a href="<?php echo JRoute::_('index.php?option=com_users&view=login&primary=hubzero&reset=1' . $this->returnQueryString); ?>">
+					<?php echo JText::sprintf('Sign in with your %s account', ((isset($this->site_display)) ? $this->site_display : $app->getCfg('sitename'))); ?>
+				</a>
 			</div>
 		</div>
 		<div class="hz" style="display:<?php echo ($primary == 'hubzero' || count($this->authenticators) == 0) ? 'block' : 'none'; ?>;">
@@ -159,7 +163,8 @@ endforeach;
 	</div>
 <?php elseif ($usersConfig->get('allowUserRegistration') != '0') : ?>
 	<p class="create">
-		<a href="<?php echo JURI::base(true); ?>/register" class="register">
+		<?php /*<a href="<?php echo JURI::base(true); ?>/register" class="register">*/?>
+		<a href="http://ncmir.ucsd.edu/collaborator/application-UserInfo.php" target="_blank" class="register">
 			<?php echo JText::_('Create an account'); ?>
 		</a>
 	</p>
