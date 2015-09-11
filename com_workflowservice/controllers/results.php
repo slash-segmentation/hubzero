@@ -290,6 +290,13 @@ class WorkflowserviceControllerResults extends \Hubzero\Component\SiteController
 				$schema_array[$cws]['type'] = 'string';
 			}	
 
+			// To display jobname at the top of the page, we need to change its order
+			$offset = 0;
+			$newArray = array_slice($schema_array, 0, $offset, true) +
+				array($cws => array('type'=>'string')) +
+				array_slice($schema_array, $offset, NULL, true);
+			$schema_array = $newArray;
+
 			$cws = '[form]CWS_user';
 			if (!(isset($option_array[$cws]))) {	
 				$data_array[$cws] = $this->owner;
